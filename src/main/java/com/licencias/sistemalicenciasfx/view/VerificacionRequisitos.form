@@ -1,0 +1,328 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<form xmlns="http://www.intellij.com/uidesigner/form/" version="1" bind-to-class="com.licencias.sistemalicenciasfx.view.VerificacionRequisitos">
+  <grid id="27dc6" binding="panelPrincipal" layout-manager="BorderLayout" hgap="0" vgap="0">
+    <constraints>
+      <xy x="20" y="20" width="1300" height="850"/>
+    </constraints>
+    <properties>
+      <background color="-1"/>
+    </properties>
+    <border type="none"/>
+    <children>
+      <grid id="headerPanel" layout-manager="BorderLayout" hgap="0" vgap="0">
+        <constraints border-constraint="North"/>
+        <properties>
+          <background color="-14796150"/>
+        </properties>
+        <border type="empty">
+          <size top="15" left="30" bottom="15" right="30"/>
+        </border>
+        <children>
+          <component id="lblTitle" class="javax.swing.JLabel">
+            <constraints border-constraint="West"/>
+            <properties>
+              <font name="Segoe UI" size="24" style="1"/>
+              <foreground color="-1"/>
+              <text value="Evaluación y Control de Requisitos"/>
+            </properties>
+          </component>
+          <grid id="searchContainer" layout-manager="FlowLayout" hgap="10" vgap="0" flow-align="2">
+            <constraints border-constraint="East"/>
+            <properties>
+              <opaque value="false"/>
+            </properties>
+            <border type="none"/>
+            <children>
+              <component id="txtBuscar" class="javax.swing.JTextField" binding="txtBuscar">
+                <constraints/>
+                <properties>
+                  <preferredSize width="250" height="35"/>
+                </properties>
+              </component>
+              <component id="btnBuscar" class="javax.swing.JButton" binding="btnBuscar">
+                <constraints/>
+                <properties>
+                  <preferredSize width="90" height="35"/>
+                  <text value="Buscar"/>
+                </properties>
+              </component>
+            </children>
+          </grid>
+        </children>
+      </grid>
+      <grid id="bodyPanel" layout-manager="GridLayoutManager" row-count="1" column-count="2" same-size-horizontally="false" same-size-vertically="false" hgap="60" vgap="0">
+        <margin top="40" left="60" bottom="40" right="60"/>
+        <constraints border-constraint="Center"/>
+        <properties>
+          <background color="-1"/>
+        </properties>
+        <border type="none"/>
+        <children>
+          <grid id="leftPanel" layout-manager="GridLayoutManager" row-count="8" column-count="2" same-size-horizontally="false" same-size-vertically="false" hgap="15" vgap="15">
+            <margin top="0" left="0" bottom="0" right="0"/>
+            <constraints>
+              <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false">
+                <preferred-size width="400" height="-1"/>
+              </grid>
+            </constraints>
+            <properties>
+              <background color="-1"/>
+            </properties>
+            <border type="none"/>
+            <children>
+              <component id="lblFoto" class="javax.swing.JLabel" binding="lblFoto">
+                <constraints>
+                  <grid row="0" column="0" row-span="1" col-span="2" vsize-policy="0" hsize-policy="0" anchor="0" fill="0" indent="0" use-parent-layout="false">
+                    <preferred-size width="300" height="400"/>
+                  </grid>
+                </constraints>
+                <properties>
+                  <background color="-1"/>
+                  <opaque value="true"/>
+                </properties>
+              </component>
+              <component id="lblNombre" class="javax.swing.JLabel" binding="lblNombre">
+                <constraints>
+                  <grid row="1" column="0" row-span="1" col-span="2" vsize-policy="0" hsize-policy="0" anchor="0" fill="0" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties>
+                  <font name="Segoe UI" size="20" style="1"/>
+                  <foreground color="-13421773"/>
+                  <text value="SELECCIONE SOLICITANTE"/>
+                </properties>
+              </component>
+              <component id="lblCedula" class="javax.swing.JLabel" binding="lblCedula">
+                <constraints>
+                  <grid row="2" column="0" row-span="1" col-span="2" vsize-policy="0" hsize-policy="0" anchor="0" fill="0" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties>
+                  <font size="14"/>
+                  <foreground color="-8355712"/>
+                  <text value="---"/>
+                </properties>
+              </component>
+              <component id="sep1" class="javax.swing.JSeparator">
+                <constraints>
+                  <grid row="3" column="0" row-span="1" col-span="2" vsize-policy="0" hsize-policy="0" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties/>
+              </component>
+              <component id="l1" class="javax.swing.JLabel">
+                <constraints>
+                  <grid row="4" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="4" fill="0" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties>
+                  <font size="14" style="1"/>
+                  <text value="Edad:"/>
+                </properties>
+              </component>
+              <component id="lblEdad" class="javax.swing.JLabel" binding="lblEdad">
+                <constraints>
+                  <grid row="4" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties>
+                  <font size="14" style="0"/>
+                  <text value="--"/>
+                </properties>
+              </component>
+              <component id="l2" class="javax.swing.JLabel">
+                <constraints>
+                  <grid row="5" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="4" fill="0" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties>
+                  <font size="14" style="1"/>
+                  <text value="Email:"/>
+                </properties>
+              </component>
+              <component id="lblEmail" class="javax.swing.JLabel" binding="lblEmail">
+                <constraints>
+                  <grid row="5" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties>
+                  <font size="14" style="0"/>
+                  <text value="--"/>
+                </properties>
+              </component>
+              <component id="l3" class="javax.swing.JLabel">
+                <constraints>
+                  <grid row="6" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="4" fill="0" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties>
+                  <font size="14" style="1"/>
+                  <text value="Licencia:"/>
+                </properties>
+              </component>
+              <component id="lblTipo" class="javax.swing.JLabel" binding="lblTipo">
+                <constraints>
+                  <grid row="6" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties>
+                  <font size="14" style="0"/>
+                  <foreground color="-16776961"/>
+                  <text value="--"/>
+                </properties>
+              </component>
+              <grid id="fillerLeft" layout-manager="GridLayoutManager" row-count="1" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+                <margin top="0" left="0" bottom="0" right="0"/>
+                <constraints>
+                  <grid row="7" column="0" row-span="1" col-span="2" vsize-policy="6" hsize-policy="1" anchor="0" fill="2" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties>
+                  <opaque value="false"/>
+                </properties>
+                <border type="none"/>
+                <children/>
+              </grid>
+            </children>
+          </grid>
+          <grid id="rightPanel" layout-manager="GridLayoutManager" row-count="5" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="20">
+            <margin top="0" left="0" bottom="0" right="0"/>
+            <constraints>
+              <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+            </constraints>
+            <properties>
+              <background color="-1"/>
+            </properties>
+            <border type="none"/>
+            <children>
+              <component id="lblInfoTitle" class="javax.swing.JLabel">
+                <constraints>
+                  <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties>
+                  <font name="Segoe UI" size="18" style="1"/>
+                  <foreground color="-13421773"/>
+                  <text value="Revisión Documental"/>
+                </properties>
+              </component>
+              <grid id="checklistPanel" layout-manager="GridLayoutManager" row-count="3" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="12">
+                <margin top="0" left="0" bottom="0" right="0"/>
+                <constraints>
+                  <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties>
+                  <background color="-1"/>
+                </properties>
+                <border type="none"/>
+                <children>
+                  <component id="chkCertificado" class="javax.swing.JCheckBox" binding="chkCertificado">
+                    <constraints>
+                      <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                    </constraints>
+                    <properties>
+                      <background color="-1"/>
+                      <font size="15"/>
+                      <text value="Certificado Médico Válido"/>
+                    </properties>
+                  </component>
+                  <component id="chkPago" class="javax.swing.JCheckBox" binding="chkPago">
+                    <constraints>
+                      <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                    </constraints>
+                    <properties>
+                      <background color="-1"/>
+                      <font size="15"/>
+                      <text value="Comprobante de Pago"/>
+                    </properties>
+                  </component>
+                  <component id="chkMultas" class="javax.swing.JCheckBox" binding="chkMultas">
+                    <constraints>
+                      <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                    </constraints>
+                    <properties>
+                      <background color="-1"/>
+                      <font size="15"/>
+                      <text value="Certificado de No Adeudar Multas"/>
+                    </properties>
+                  </component>
+                </children>
+              </grid>
+              <grid id="obsContainer" layout-manager="GridLayoutManager" row-count="2" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="10">
+                <margin top="0" left="0" bottom="0" right="0"/>
+                <constraints>
+                  <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties>
+                  <background color="-1"/>
+                </properties>
+                <border type="none"/>
+                <children>
+                  <component id="lblObs" class="javax.swing.JLabel">
+                    <constraints>
+                      <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                    </constraints>
+                    <properties>
+                      <font style="1"/>
+                      <text value="Observaciones / Motivo de Rechazo"/>
+                    </properties>
+                  </component>
+                  <scrollpane id="scrObs">
+                    <constraints>
+                      <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="7" hsize-policy="7" anchor="0" fill="3" indent="0" use-parent-layout="false">
+                        <preferred-size width="-1" height="200"/>
+                      </grid>
+                    </constraints>
+                    <properties/>
+                    <border type="none"/>
+                    <children>
+                      <component id="txtObservaciones" class="javax.swing.JTextArea" binding="txtObservaciones">
+                        <constraints/>
+                        <properties>
+                          <background color="-1"/>
+                          <lineWrap value="true"/>
+                        </properties>
+                      </component>
+                    </children>
+                  </scrollpane>
+                </children>
+              </grid>
+              <grid id="fillerRight" layout-manager="GridLayoutManager" row-count="1" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+                <margin top="0" left="0" bottom="0" right="0"/>
+                <constraints>
+                  <grid row="3" column="0" row-span="1" col-span="1" vsize-policy="6" hsize-policy="1" anchor="0" fill="2" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties>
+                  <opaque value="false"/>
+                </properties>
+                <border type="none"/>
+                <children/>
+              </grid>
+              <grid id="btnPanel" layout-manager="FlowLayout" hgap="20" vgap="20" flow-align="2">
+                <constraints>
+                  <grid row="4" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties>
+                  <background color="-1"/>
+                </properties>
+                <border type="none"/>
+                <children>
+                  <component id="btnRegresar" class="javax.swing.JButton" binding="btnRegresar">
+                    <constraints/>
+                    <properties>
+                      <preferredSize width="120" height="45"/>
+                      <text value="Regresar"/>
+                    </properties>
+                  </component>
+                  <component id="btnRechazar" class="javax.swing.JButton" binding="btnRechazar">
+                    <constraints/>
+                    <properties>
+                      <preferredSize width="160" height="45"/>
+                      <text value="Rechazar"/>
+                    </properties>
+                  </component>
+                  <component id="btnAprobar" class="javax.swing.JButton" binding="btnAprobar">
+                    <constraints/>
+                    <properties>
+                      <preferredSize width="200" height="45"/>
+                      <text value="Aprobar"/>
+                    </properties>
+                  </component>
+                </children>
+              </grid>
+            </children>
+          </grid>
+        </children>
+      </grid>
+    </children>
+  </grid>
+</form>

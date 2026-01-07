@@ -75,16 +75,22 @@ public class MenuPrincipal extends JFrame {
         // 2. BOTONES
         gbc.gridy++; agregarSeparador("OPERACIONES", gbc);
 
-        // --- AQUÍ ESTÁ EL CAMBIO PARA ABRIR LA VENTANA ---
+        // --- REGISTRAR SOLICITANTE ---
         gbc.gridy++;
         agregarBoton("Registrar Solicitante", IconType.USER_ADD, e -> {
             navegar("Registrar Solicitante");
-            // Abre la ventana de Registro
             new RegistroSolicitante().setVisible(true);
         }, gbc);
 
-        // Los demás botones siguen igual por ahora (navegación simulada)
-        gbc.gridy++; agregarBoton("Verificar Requisitos", IconType.CHECK, e -> navegar("Verificar Requisitos"), gbc);
+        // --- VERIFICAR REQUISITOS (AQUÍ ESTÁ EL CAMBIO) ---
+        gbc.gridy++;
+        agregarBoton("Verificar Requisitos", IconType.CHECK, e -> {
+            navegar("Verificar Requisitos");
+            // Abre la ventana de Verificación
+            new VerificacionRequisitos().setVisible(true);
+        }, gbc);
+
+        // Resto de botones (sin funcionalidad real aún)
         gbc.gridy++; agregarBoton("Registrar Exámenes", IconType.DOC_EDIT, e -> navegar("Registrar Exámenes"), gbc);
         gbc.gridy++; agregarBoton("Gestión de Trámites", IconType.FOLDER, e -> navegar("Gestión de Trámites"), gbc);
         gbc.gridy++; agregarBoton("Generar Licencia", IconType.CARD, e -> navegar("Generar Licencia"), gbc);
@@ -129,7 +135,7 @@ public class MenuPrincipal extends JFrame {
         panelMenu.repaint();
     }
 
-    // --- HELPERS VISUALES ---
+    // --- HELPERS VISUALES (IGUAL QUE ANTES) ---
 
     private void agregarSeparador(String texto, GridBagConstraints gbc) {
         JLabel lbl = new JLabel(texto);

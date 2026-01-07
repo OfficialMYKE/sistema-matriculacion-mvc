@@ -59,7 +59,6 @@
                   <component id="lblFoto" class="javax.swing.JLabel" binding="lblFoto">
                     <constraints>
                       <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="0" fill="0" indent="0" use-parent-layout="false">
-                        <minimum-size width="300" height="400"/>
                         <preferred-size width="300" height="400"/>
                       </grid>
                     </constraints>
@@ -96,11 +95,11 @@
                   </vspacer>
                 </children>
               </grid>
-              <grid id="rightCol" layout-manager="GridLayoutManager" row-count="10" column-count="2" same-size-horizontally="false" same-size-vertically="false" hgap="25" vgap="15">
+              <grid id="rightCol" layout-manager="GridLayoutManager" row-count="12" column-count="2" same-size-horizontally="false" same-size-vertically="false" hgap="25" vgap="15">
                 <margin top="0" left="0" bottom="0" right="0"/>
                 <constraints>
                   <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false">
-                    <preferred-size width="700" height="-1"/>
+                    <preferred-size width="900" height="-1"/>
                   </grid>
                 </constraints>
                 <properties>
@@ -133,32 +132,31 @@
                       <text value="Cédula de Identidad"/>
                     </properties>
                   </component>
-                  <component id="l8" class="javax.swing.JLabel">
+                  <component id="l9" class="javax.swing.JLabel">
                     <constraints>
                       <grid row="2" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
                     </constraints>
                     <properties>
                       <font style="1"/>
-                      <text value="Fecha de Registro"/>
+                      <text value="Fecha de Nacimiento (dd/mm/aaaa)"/>
                     </properties>
                   </component>
                   <component id="txtCedula" class="javax.swing.JTextField" binding="txtCedula">
                     <constraints>
                       <grid row="3" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="1" indent="0" use-parent-layout="false">
-                        <preferred-size width="300" height="40"/>
+                        <preferred-size width="400" height="40"/>
                       </grid>
                     </constraints>
                     <properties/>
                   </component>
-                  <component id="txtFecha" class="javax.swing.JTextField" binding="txtFecha">
+                  <component id="txtFechaNacimiento" class="javax.swing.JTextField" binding="txtFechaNacimiento">
                     <constraints>
                       <grid row="3" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="1" indent="0" use-parent-layout="false">
-                        <preferred-size width="300" height="40"/>
+                        <preferred-size width="400" height="40"/>
                       </grid>
                     </constraints>
                     <properties>
-                      <background color="-1118482"/>
-                      <editable value="false"/>
+                      <toolTipText value="Ej: 25/12/2000"/>
                     </properties>
                   </component>
                   <component id="l2" class="javax.swing.JLabel">
@@ -182,7 +180,7 @@
                   <component id="txtNombres" class="javax.swing.JTextField" binding="txtNombres">
                     <constraints>
                       <grid row="5" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="1" indent="0" use-parent-layout="false">
-                        <preferred-size width="300" height="40"/>
+                        <preferred-size width="400" height="40"/>
                       </grid>
                     </constraints>
                     <properties/>
@@ -190,7 +188,7 @@
                   <component id="txtApellidos" class="javax.swing.JTextField" binding="txtApellidos">
                     <constraints>
                       <grid row="5" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="1" indent="0" use-parent-layout="false">
-                        <preferred-size width="300" height="40"/>
+                        <preferred-size width="400" height="40"/>
                       </grid>
                     </constraints>
                     <properties/>
@@ -216,7 +214,7 @@
                   <component id="txtEmail" class="javax.swing.JTextField" binding="txtEmail">
                     <constraints>
                       <grid row="7" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="1" indent="0" use-parent-layout="false">
-                        <preferred-size width="300" height="40"/>
+                        <preferred-size width="400" height="40"/>
                       </grid>
                     </constraints>
                     <properties/>
@@ -224,7 +222,7 @@
                   <component id="txtCelular" class="javax.swing.JTextField" binding="txtCelular">
                     <constraints>
                       <grid row="7" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="1" indent="0" use-parent-layout="false">
-                        <preferred-size width="300" height="40"/>
+                        <preferred-size width="400" height="40"/>
                       </grid>
                     </constraints>
                     <properties/>
@@ -250,7 +248,7 @@
                   <component id="txtDireccion" class="javax.swing.JTextField" binding="txtDireccion">
                     <constraints>
                       <grid row="9" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="1" indent="0" use-parent-layout="false">
-                        <preferred-size width="300" height="40"/>
+                        <preferred-size width="400" height="40"/>
                       </grid>
                     </constraints>
                     <properties/>
@@ -258,7 +256,7 @@
                   <component id="cmbTipo" class="javax.swing.JComboBox" binding="cmbTipo">
                     <constraints>
                       <grid row="9" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="1" indent="0" use-parent-layout="false">
-                        <preferred-size width="300" height="40"/>
+                        <preferred-size width="400" height="40"/>
                       </grid>
                     </constraints>
                     <properties>
@@ -269,6 +267,26 @@
                         <item value="TIPO D"/>
                         <item value="TIPO E"/>
                       </model>
+                    </properties>
+                  </component>
+                  <component id="l8" class="javax.swing.JLabel">
+                    <constraints>
+                      <grid row="10" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                    </constraints>
+                    <properties>
+                      <font style="1"/>
+                      <text value="Fecha de Registro"/>
+                    </properties>
+                  </component>
+                  <component id="txtFecha" class="javax.swing.JTextField" binding="txtFecha">
+                    <constraints>
+                      <grid row="11" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="1" indent="0" use-parent-layout="false">
+                        <preferred-size width="400" height="40"/>
+                      </grid>
+                    </constraints>
+                    <properties>
+                      <background color="-1118482"/>
+                      <editable value="false"/>
                     </properties>
                   </component>
                 </children>

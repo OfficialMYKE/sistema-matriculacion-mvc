@@ -1,7 +1,6 @@
 package com.licencias.sistemalicenciasfx.view;
 
-import com.licencias.sistemalicenciasfx.service.SupabaseService; // IMPORTANTE: Tu servicio de conexión
-
+import com.licencias.sistemalicenciasfx.service.SupabaseService;
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.border.CompoundBorder;
@@ -17,7 +16,9 @@ import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.time.LocalDate;
+import java.time.Period;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 
 public class RegistroSolicitante extends JFrame {
 
@@ -34,6 +35,7 @@ public class RegistroSolicitante extends JFrame {
     private JTextField txtEmail;
     private JTextField txtCelular;
     private JTextField txtDireccion;
+    private JTextField txtFechaNacimiento; // NUEVO
     private JComboBox<String> cmbTipo;
     private JTextField txtFecha;
 
@@ -43,16 +45,19 @@ public class RegistroSolicitante extends JFrame {
 
     private File archivoFotoSeleccionado;
 
-    // --- SERVICIO SUPABASE ---
+    // SERVICIO SUPABASE
     private final SupabaseService supabaseService;
 
-    // --- CONFIGURACIÓN ESTÉTICA ---
+    // CONFIGURACIÓN ESTÉTICA
     private final Color COLOR_BG_INPUT = new Color(248, 249, 250);
     private final Color COLOR_BORDER_INPUT = new Color(200, 200, 200);
-    private final Color COLOR_ACCENT = new Color(30, 58, 138); // Azul Institucional
-    private final Color COLOR_DANGER = new Color(220, 53, 69); // Rojo Cancelar
+    private final Color COLOR_ACCENT = new Color(30, 58, 138);
+    private final Color COLOR_DANGER = new Color(220, 53, 69);
+    
+    // FORMATO DE FECHA
+    private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
-    // DIMENSIONES DE FOTO (Tu diseño mejorado)
+    // DIMENSIONES DE FOTO
     private static final int FOTO_ANCHO = 300;
     private static final int FOTO_ALTO = 400;
 
@@ -70,13 +75,16 @@ public class RegistroSolicitante extends JFrame {
     }
 
     private void personalizarUI() {
-        // 1. INPUTS
+        // INPUTS
         estilizarInput(txtCedula);
         estilizarInput(txtNombres);
         estilizarInput(txtApellidos);
         estilizarInput(txtEmail);
         estilizarInput(txtCelular);
         estilizarInput(txtDireccion);
+        
+        estilizarInput(txtFechaNacimiento);
+        agregarPlaceholder(txtFechaNacimiento, "dd/MM/yyyy"); // Ayuda visual
 
         estilizarInput(txtFecha);
         txtFecha.setBackground(new Color(233, 236, 239)); // Readonly
@@ -85,14 +93,12 @@ public class RegistroSolicitante extends JFrame {
         cmbTipo.setBorder(new LineBorder(COLOR_BORDER_INPUT, 1));
         cmbTipo.setFont(new Font("Segoe UI", Font.PLAIN, 14));
 
-        // 2. FOTO GRANDE (300x400)
         lblFoto.setOpaque(true);
-        // El fondo lo pinta el método pintarPlaceholderFoto
         lblFoto.setBorder(new LineBorder(COLOR_BORDER_INPUT, 1));
 
         pintarPlaceholderFoto();
 
-        // 3. BOTONES
+        // BOTONES
         estilizarBoton(btnGuardar, COLOR_ACCENT, Color.WHITE);
         estilizarBoton(btnSubirFoto, COLOR_ACCENT, Color.WHITE);
         estilizarBoton(btnCancelar, COLOR_DANGER, Color.WHITE);
@@ -126,11 +132,33 @@ public class RegistroSolicitante extends JFrame {
             }
         });
     }
+    
+    private void agregarPlaceholder(JTextField campo, String placeholder) {
+        campo.setText(placeholder);
+        campo.setForeground(Color.GRAY);
+        
+        campo.addFocusListener(new FocusAdapter() {
+            @Override
+            public void focusGained(FocusEvent e) {
+                if(campo.getText().equals(placeholder)) {
+                    campo.setText("");
+                    campo.setForeground(Color.BLACK);
+                }
+            }
+            @Override
+            public void focusLost(FocusEvent e) {
+                if(campo.getText().isEmpty()) {
+                    campo.setText(placeholder);
+                    campo.setForeground(Color.GRAY);
+                }
+            }
+        });
+    }
 
     private void estilizarBoton(JButton btn, Color bg, Color fg) {
         btn.setBackground(bg);
         btn.setForeground(fg);
-        btn.setFont(new Font("Segoe UI", Font.BOLD, 14));
+        btn.setFont(new Font("Segoe UI", Font.PLAIN, 14));
         btn.setFocusPainted(false);
         btn.setBorderPainted(false);
         btn.setContentAreaFilled(false);
@@ -143,7 +171,7 @@ public class RegistroSolicitante extends JFrame {
                 Graphics2D g2 = (Graphics2D) g.create();
                 g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
                 g2.setColor(c.getBackground());
-                g2.fillRoundRect(0, 0, c.getWidth(), c.getHeight(), 20, 20); // Radius 20px
+                g2.fillRoundRect(0, 0, c.getWidth(), c.getHeight(), 20, 20);
                 g2.dispose();
                 super.paint(g, c);
             }
@@ -155,7 +183,6 @@ public class RegistroSolicitante extends JFrame {
         });
     }
 
-    // --- DIBUJO DE SILUETA MEJORADO (300x400) ---
     private void pintarPlaceholderFoto() {
         BufferedImage img = new BufferedImage(FOTO_ANCHO, FOTO_ALTO, BufferedImage.TYPE_INT_ARGB);
         Graphics2D g2 = img.createGraphics();
@@ -163,16 +190,13 @@ public class RegistroSolicitante extends JFrame {
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         g2.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
 
-        // Fondo Degradado
-        Color colorInicio = new Color(45, 45, 45);
-        Color colorFin = new Color(25, 25, 25);
+        Color colorInicio = new Color(240, 240, 240);
+        Color colorFin = new Color(220, 220, 220);
         GradientPaint gradiente = new GradientPaint(0, 0, colorInicio, 0, FOTO_ALTO, colorFin);
         g2.setPaint(gradiente);
         g2.fillRect(0, 0, FOTO_ANCHO, FOTO_ALTO);
 
-        // Silueta
-        g2.setColor(new Color(100, 100, 100));
-
+        g2.setColor(new Color(180, 180, 180));
         int headRadius = FOTO_ANCHO / 3;
         int headX = (FOTO_ANCHO - headRadius) / 2;
         int headY = FOTO_ALTO / 4;
@@ -190,34 +214,57 @@ public class RegistroSolicitante extends JFrame {
     }
 
     private void iniciarLogica() {
-        txtFecha.setText(LocalDate.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")));
+        txtFecha.setText(LocalDate.now().format(formatter));
 
         btnSubirFoto.addActionListener(e -> subirFoto());
         btnCancelar.addActionListener(e -> this.dispose());
 
-        // --- LOGICA DE GUARDADO REAL (SUPABASE) ---
+        // LOGICA DE GUARDADO (SUPABASE)
         btnGuardar.addActionListener(e -> {
-            // 1. Validaciones
-            if(txtCedula.getText().trim().isEmpty() || txtNombres.getText().trim().isEmpty() || txtApellidos.getText().trim().isEmpty()) {
+            // 1. Validaciones Básicas
+            if(txtCedula.getText().trim().isEmpty() || txtNombres.getText().trim().isEmpty() || txtFechaNacimiento.getText().equals("dd/MM/yyyy")) {
                 JOptionPane.showMessageDialog(this, "Por favor, complete los campos obligatorios (*).", "Error de Validación", JOptionPane.ERROR_MESSAGE);
                 return;
             }
 
-            // 2. UI Feedback
+            // 2. VALIDACIÓN DE EDAD (< 17 AÑOS)
+            LocalDate fechaNacimiento;
+            try {
+                fechaNacimiento = LocalDate.parse(txtFechaNacimiento.getText(), formatter);
+                
+                // Calculamos edad
+                int edad = Period.between(fechaNacimiento, LocalDate.now()).getYears();
+                
+                if (edad < 17) {
+                    JOptionPane.showMessageDialog(this, 
+                        "⛔ NO SE PUEDE REGISTRAR:\nEl solicitante tiene " + edad + " años.\nLa edad mínima requerida es de 17 años.", 
+                        "Edad Insuficiente", JOptionPane.ERROR_MESSAGE);
+                    return; // DETIENE EL PROCESO
+                }
+                
+            } catch (DateTimeParseException ex) {
+                JOptionPane.showMessageDialog(this, "Formato de fecha inválido.\nUse el formato: dd/MM/yyyy (ej: 25/12/2000)", "Error de Fecha", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            // 3. UI Feedback
             btnGuardar.setEnabled(false);
             btnGuardar.setText("Guardando...");
             setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 
-            // 3. Proceso en Segundo Plano (Thread)
+            // 4. Proceso en Segundo Plano (Thread)
+            // Necesitamos una variable final efectiva para el thread
+            final LocalDate fechaNacFinal = fechaNacimiento; 
+            
             new Thread(() -> {
                 String fotoUrl = null;
 
-                // A. Subir Foto (Si existe)
+                // Subir Foto (Si existe)
                 if(archivoFotoSeleccionado != null) {
                     fotoUrl = supabaseService.subirImagen(archivoFotoSeleccionado, txtCedula.getText().trim());
                 }
 
-                // B. Guardar en Base de Datos
+                // Guardar en Base de Datos (Con fecha nacimiento)
                 boolean exito = supabaseService.guardarSolicitante(
                         txtCedula.getText().trim(),
                         txtNombres.getText().trim(),
@@ -226,10 +273,10 @@ public class RegistroSolicitante extends JFrame {
                         txtCelular.getText().trim(),
                         txtDireccion.getText().trim(),
                         (String) cmbTipo.getSelectedItem(),
+                        fechaNacFinal, // Pasamos la fecha
                         fotoUrl
                 );
 
-                // C. Volver a la UI
                 SwingUtilities.invokeLater(() -> {
                     btnGuardar.setEnabled(true);
                     btnGuardar.setText("Guardar Solicitante");
@@ -256,7 +303,6 @@ public class RegistroSolicitante extends JFrame {
             try {
                 BufferedImage img = ImageIO.read(archivoFotoSeleccionado);
                 if(img != null) {
-                    // Escalar a 300x400
                     Image s = img.getScaledInstance(FOTO_ANCHO, FOTO_ALTO, Image.SCALE_SMOOTH);
                     lblFoto.setIcon(new ImageIcon(s));
                 }
