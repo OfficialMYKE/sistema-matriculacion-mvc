@@ -12,14 +12,14 @@ import java.sql.Connection;
 public class Main {
     public static void main(String[] args) {
 
-        // 1. ACTIVAR DISEÑO MODERNO (FLATLAF)
+        // ACTIVAR DISEÑO MODERNO (FLATLAF)
         try {
             UIManager.setLookAndFeel(new FlatDarkLaf());
         } catch (Exception ex) {
             System.err.println("No se pudo cargar el tema oscuro. Usando el de sistema.");
         }
 
-        // 2. PRUEBA DE CONEXIÓN A BASE DE DATOS (SUPABASE)
+        // PRUEBA DE CONEXIÓN A BASE DE DATOS (SUPABASE)
         System.out.println("--- INICIANDO SISTEMA ---");
         System.out.println("Conectando a Supabase...");
 
@@ -38,7 +38,7 @@ public class Main {
                     "Error de Conexión", JOptionPane.ERROR_MESSAGE);
         }
 
-        // 3. ABRIR VENTANA DE LOGIN
+        // ABRIR VENTANA DE LOGIN
         SwingUtilities.invokeLater(() -> {
             try {
                 Login loginFrame = new Login();

@@ -39,6 +39,6 @@ public class Solicitante {
     public String getFotoUrl() { return fotoUrl; }
     public String getEstado() { return estado; }
 
-    // Helper para nombre completo
+    // Helper para nombre
     public String getNombreCompleto() { return nombres + " " + apellidos; }
 }

@@ -85,7 +85,7 @@
                     <properties>
                       <font size="12"/>
                       <foreground color="-8355712"/>
-                      <text value="Formatos: JPG, PNG | Tamaño Máx: 50MB"/>
+                      <text value="Formatos: JPG, PNG | Tamaño Máx: 50 MB"/>
                     </properties>
                   </component>
                   <vspacer id="spFillL">

@@ -24,16 +24,16 @@ public class AuthService {
      * @return El objeto Usuario si el login es exitoso, o null si falla.
      */
     public Usuario autenticar(String username, String password) {
-        // 1. Consultar a la Base de Datos
+        // Consultar a la Base de Datos
         Usuario usuario = usuarioDAO.login(username, password);
 
-        // 2. Lógica de Negocio: Gestión de Sesión
+        // Lógica de Negocio: Gestión de Sesión
         if (usuario != null) {
             // Si el usuario existe, lo guardamos en la clase estática Sesion
             Sesion.setUsuarioActual(usuario);
-            System.out.println("✅ Login exitoso. Sesión iniciada para: " + usuario.getUsername());
+            System.out.println("Login exitoso. Sesión iniciada para: " + usuario.getUsername());
         } else {
-            System.out.println("❌ Login fallido. Credenciales incorrectas para: " + username);
+            System.out.println("Login fallido. Credenciales incorrectas para: " + username);
         }
 
         return usuario;

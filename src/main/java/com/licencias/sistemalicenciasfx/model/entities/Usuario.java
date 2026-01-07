@@ -9,11 +9,11 @@ public class Usuario {
     private String password;
     private Rol rol;
 
-    // 1. Constructor Vacío (OBLIGATORIO para el DAO)
+    // Constructor Vacío (OBLIGATORIO para el DAO)
     public Usuario() {
     }
 
-    // 2. Constructor Lleno
+    // Constructor Lleno
     public Usuario(int id, String username, String password, Rol rol) {
         this.id = id;
         this.username = username;
@@ -21,13 +21,13 @@ public class Usuario {
         this.rol = rol;
     }
 
-    // --- SECCIÓN DE GETTERS Y SETTERS (ESTO ES LO QUE TE FALTABA) ---
+    // SECCIÓN DE GETTERS Y SETTERS
 
     // ID
     public int getId() { return id; }
     public void setId(int id) { this.id = id; }
 
-    // USERNAME (El que te daba error)
+    // USERNAME
     public String getUsername() { return username; }
     public void setUsername(String username) { this.username = username; }
 

@@ -221,13 +221,13 @@ public class RegistroSolicitante extends JFrame {
 
         // LOGICA DE GUARDADO (SUPABASE)
         btnGuardar.addActionListener(e -> {
-            // 1. Validaciones Básicas
+            // Validaciones Básicas
             if(txtCedula.getText().trim().isEmpty() || txtNombres.getText().trim().isEmpty() || txtFechaNacimiento.getText().equals("dd/MM/yyyy")) {
                 JOptionPane.showMessageDialog(this, "Por favor, complete los campos obligatorios (*).", "Error de Validación", JOptionPane.ERROR_MESSAGE);
                 return;
             }
 
-            // 2. VALIDACIÓN DE EDAD (< 17 AÑOS)
+            // VALIDACIÓN DE EDAD (< 17 AÑOS)
             LocalDate fechaNacimiento;
             try {
                 fechaNacimiento = LocalDate.parse(txtFechaNacimiento.getText(), formatter);
@@ -237,7 +237,7 @@ public class RegistroSolicitante extends JFrame {
                 
                 if (edad < 17) {
                     JOptionPane.showMessageDialog(this, 
-                        "⛔ NO SE PUEDE REGISTRAR:\nEl solicitante tiene " + edad + " años.\nLa edad mínima requerida es de 17 años.", 
+                        "NO SE PUEDE REGISTRAR:\nEl solicitante tiene " + edad + " años.\nLa edad mínima requerida es de 17 años.",
                         "Edad Insuficiente", JOptionPane.ERROR_MESSAGE);
                     return; // DETIENE EL PROCESO
                 }
@@ -247,12 +247,12 @@ public class RegistroSolicitante extends JFrame {
                 return;
             }
 
-            // 3. UI Feedback
+            // UI Feedback
             btnGuardar.setEnabled(false);
             btnGuardar.setText("Guardando...");
             setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 
-            // 4. Proceso en Segundo Plano (Thread)
+            // Proceso en Segundo Plano (Thread)
             // Necesitamos una variable final efectiva para el thread
             final LocalDate fechaNacFinal = fechaNacimiento; 
             

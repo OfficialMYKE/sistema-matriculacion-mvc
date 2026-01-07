@@ -20,15 +20,15 @@ public class DatabaseConfig {
 
     private DatabaseConfig() {
 
-        // 1. Driver de PostgreSQL
+        // Driver de PostgreSQL
         this.driver = "org.postgresql.Driver";
         String host = "aws-1-us-east-2.pooler.supabase.com";
         String dbName = "postgres";
 
-        // 3. URL JDBC (Usamos el puerto 5432 para conexión directa)
+        // URL JDBC (Usamos el puerto 5432 para conexión directa)
         this.url = "jdbc:postgresql://" + host + ":5432/" + dbName + "?sslmode=require";
 
-        // 4. CREDENCIALES
+        // CREDENCIALES
         this.usuario = "postgres.sbxndvnhvwdppcgomkda";
         this.password = "ContraseñaSegura123"; // ¡Tu contraseña!
 

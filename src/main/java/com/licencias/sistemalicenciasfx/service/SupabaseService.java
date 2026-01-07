@@ -21,12 +21,12 @@ import java.util.List;
 
 public class SupabaseService {
 
-    // --- CONFIGURACIÓN ---
+    // CONFIGURACIÓN
     private static final String PROJECT_URL = "https://sbxndvnhvwdppcgomkda.supabase.co";
     private static final String SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNieG5kdm5odndkcHBjZ29ta2RhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njc3MTY2MzIsImV4cCI6MjA4MzI5MjYzMn0.W8P3KH6M5oTI-UwoG5xkCjRdefMo8iatxhbfxg9tOOo";
     private static final String BUCKET_NAME = "fotos_solicitantes";
 
-    // 1. GUARDAR (CON TODOS LOS CAMPOS)
+    // GUARDAR (CON TODOS LOS CAMPOS)
     public boolean guardarSolicitante(String cedula, String nombres, String apellidos,
                                       String email, String celular, String dir,
                                       String tipo, LocalDate fechaNacimiento, String fotoUrl) {
@@ -56,7 +56,7 @@ public class SupabaseService {
         }
     }
 
-    // 2. OBTENER SIGUIENTE PENDIENTE (Mapeo completo)
+    // OBTENER SIGUIENTE PENDIENTE (Mapeo completo)
     public Solicitante obtenerSiguientePendiente() {
         String sql = "SELECT * FROM solicitantes WHERE estado = 'PENDIENTE' ORDER BY fecha_registro ASC LIMIT 1";
 
@@ -73,7 +73,7 @@ public class SupabaseService {
         return null;
     }
 
-    // 3. NUEVO: BUSCAR POR FILTRO (Cédula o Nombre)
+    // BUSCAR POR FILTRO (Cédula o Nombre)
     public List<Solicitante> buscarPendientes(String filtro) {
         List<Solicitante> lista = new ArrayList<>();
         // Busca coincidencias en cédula, nombre o apellido (ILIKE es case-insensitive en Postgres)
@@ -98,7 +98,7 @@ public class SupabaseService {
         return lista;
     }
 
-    // 4. ACTUALIZAR ESTADO
+    // ACTUALIZAR ESTADO
     public boolean actualizarEstadoSolicitante(String cedula, String nuevoEstado, String observaciones) {
         String sql = "UPDATE solicitantes SET estado = ?, observaciones = ? WHERE cedula = ?";
         try (Connection conn = DatabaseConfig.getInstance().obtenerConexion();
@@ -110,7 +110,7 @@ public class SupabaseService {
         } catch (Exception e) { return false; }
     }
 
-    // 5. SUBIR IMAGEN
+    // SUBIR IMAGEN
     public String subirImagen(File archivo, String cedula) {
         if (archivo == null) return null;
         try {
@@ -128,7 +128,7 @@ public class SupabaseService {
         return null;
     }
 
-    // --- HELPER PRIVADO PARA MAPEADO (Evita repetir código) ---
+    // HELPER PRIVADO PARA MAPEADO (Evita repetir código)
     private Solicitante mapResultSetToSolicitante(ResultSet rs) throws SQLException {
         // Manejo seguro de fecha (puede ser nula en registros viejos)
         Date sqlDate = rs.getDate("fecha_nacimiento");

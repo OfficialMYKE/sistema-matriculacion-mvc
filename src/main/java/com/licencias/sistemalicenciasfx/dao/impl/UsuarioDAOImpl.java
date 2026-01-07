@@ -58,7 +58,7 @@ public class UsuarioDAOImpl implements IUsuarioDAO {
 
     @Override
     public void update(Usuario entity) {
-        // TODO: Implementar lógica para actualizar usuario
+        // TODO: Implementar lógica para actualizar usuari
     }
 
     @Override

@@ -3,7 +3,7 @@ package com.licencias.sistemalicenciasfx.dao.interfaces;
 import java.util.List;
 
 /**
- * Interfaz Genérica que define las operaciones CRUD estándar.
+ * Interfaz Genérica que define las operaciones CRUD estándar
  * @param <T> El tipo de Entidad (ej: Usuario, Tramite, Licencia)
  */
 public interface IGenericDAO<T> {

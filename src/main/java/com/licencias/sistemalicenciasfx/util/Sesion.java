@@ -10,7 +10,6 @@ public class Sesion {
 
     private static Usuario usuarioActual;
 
-    // Método que te faltaba (Setter)
     public static void setUsuarioActual(Usuario usuario) {
         usuarioActual = usuario;
     }

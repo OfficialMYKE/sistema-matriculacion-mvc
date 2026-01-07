@@ -85,7 +85,7 @@ public class VerificacionRequisitos extends JFrame {
     private void estilizarBoton(JButton btn, Color bg, Color fg) {
         btn.setBackground(bg);
         btn.setForeground(fg);
-        btn.setFont(new Font("Segoe UI", Font.PLAIN, 14)); // FUENTE REGULAR
+        btn.setFont(new Font("Segoe UI", Font.PLAIN, 14));
         btn.setFocusPainted(false);
         btn.setBorderPainted(bg == Color.WHITE);
         btn.setContentAreaFilled(false);
