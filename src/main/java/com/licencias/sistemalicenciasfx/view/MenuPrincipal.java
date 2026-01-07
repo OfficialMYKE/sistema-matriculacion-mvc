@@ -10,7 +10,6 @@ import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.geom.Path2D;
-import java.awt.geom.RoundRectangle2D;
 
 public class MenuPrincipal extends JFrame {
 
@@ -82,16 +81,21 @@ public class MenuPrincipal extends JFrame {
             new RegistroSolicitante().setVisible(true);
         }, gbc);
 
-        // --- VERIFICAR REQUISITOS (AQUÍ ESTÁ EL CAMBIO) ---
+        // --- VERIFICAR REQUISITOS ---
         gbc.gridy++;
         agregarBoton("Verificar Requisitos", IconType.CHECK, e -> {
             navegar("Verificar Requisitos");
-            // Abre la ventana de Verificación
             new VerificacionRequisitos().setVisible(true);
         }, gbc);
 
-        // Resto de botones (sin funcionalidad real aún)
-        gbc.gridy++; agregarBoton("Registrar Exámenes", IconType.DOC_EDIT, e -> navegar("Registrar Exámenes"), gbc);
+        // --- REGISTRAR EXÁMENES (AQUÍ ESTÁ EL CAMBIO) ---
+        gbc.gridy++;
+        agregarBoton("Registrar Exámenes", IconType.DOC_EDIT, e -> {
+            navegar("Registrar Exámenes");
+            new RegistroExamenes().setVisible(true);
+        }, gbc);
+
+        // Otros botones (funcionalidad pendiente)
         gbc.gridy++; agregarBoton("Gestión de Trámites", IconType.FOLDER, e -> navegar("Gestión de Trámites"), gbc);
         gbc.gridy++; agregarBoton("Generar Licencia", IconType.CARD, e -> navegar("Generar Licencia"), gbc);
 
@@ -134,8 +138,6 @@ public class MenuPrincipal extends JFrame {
         panelMenu.revalidate();
         panelMenu.repaint();
     }
-
-    // --- HELPERS VISUALES (IGUAL QUE ANTES) ---
 
     private void agregarSeparador(String texto, GridBagConstraints gbc) {
         JLabel lbl = new JLabel(texto);
@@ -210,7 +212,6 @@ public class MenuPrincipal extends JFrame {
         if(lblTitulo != null) lblTitulo.setText(titulo);
     }
 
-    // --- CLASE INTERNA PARA DIBUJAR ICONOS ---
     private enum IconType { USER_ADD, CHECK, DOC_EDIT, FOLDER, CARD, GROUP, CHART }
 
     private static class VectorIcon implements Icon {
