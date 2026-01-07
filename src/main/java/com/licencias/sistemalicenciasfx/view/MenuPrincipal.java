@@ -18,7 +18,7 @@ public class MenuPrincipal extends JFrame {
     private JPanel panelMenu;
     private JPanel panelContenido;
     private JLabel lblTitulo;
-    
+
     private final Usuario usuarioActual;
 
     // --- COLORES ---
@@ -43,7 +43,7 @@ public class MenuPrincipal extends JFrame {
     private void construirMenuLateral() {
         if(panelMenu == null) return;
         panelMenu.removeAll();
-        
+
         panelMenu.setLayout(new GridBagLayout());
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.gridx = 0;
@@ -52,10 +52,10 @@ public class MenuPrincipal extends JFrame {
 
         // 1. HEADER
         gbc.gridy = 0;
-        gbc.weighty = 0; 
+        gbc.weighty = 0;
         gbc.anchor = GridBagConstraints.NORTH;
         gbc.insets = new Insets(15, 0, 0, 0);
-        
+
         JLabel lblLogo = new JLabel("EPN");
         lblLogo.setFont(new Font("Segoe UI", Font.BOLD, 52));
         lblLogo.setForeground(COLOR_BLANCO);
@@ -74,7 +74,16 @@ public class MenuPrincipal extends JFrame {
 
         // 2. BOTONES
         gbc.gridy++; agregarSeparador("OPERACIONES", gbc);
-        gbc.gridy++; agregarBoton("Registrar Solicitante", IconType.USER_ADD, e -> navegar("Registrar Solicitante"), gbc);
+
+        // --- AQUÍ ESTÁ EL CAMBIO PARA ABRIR LA VENTANA ---
+        gbc.gridy++;
+        agregarBoton("Registrar Solicitante", IconType.USER_ADD, e -> {
+            navegar("Registrar Solicitante");
+            // Abre la ventana de Registro
+            new RegistroSolicitante().setVisible(true);
+        }, gbc);
+
+        // Los demás botones siguen igual por ahora (navegación simulada)
         gbc.gridy++; agregarBoton("Verificar Requisitos", IconType.CHECK, e -> navegar("Verificar Requisitos"), gbc);
         gbc.gridy++; agregarBoton("Registrar Exámenes", IconType.DOC_EDIT, e -> navegar("Registrar Exámenes"), gbc);
         gbc.gridy++; agregarBoton("Gestión de Trámites", IconType.FOLDER, e -> navegar("Gestión de Trámites"), gbc);
@@ -83,31 +92,31 @@ public class MenuPrincipal extends JFrame {
         if (usuarioActual.getRol() == Rol.ADMINISTRADOR) {
             gbc.gridy++;
             panelMenu.add(Box.createVerticalStrut(15), gbc);
-            
+
             gbc.gridy++; agregarSeparador("ADMINISTRACIÓN", gbc);
-            
+
             gbc.gridy++; agregarBoton("Gestión de Usuarios", IconType.GROUP, e -> navegar("Gestión de Usuarios"), gbc);
             gbc.gridy++; agregarBoton("Reportes y Estadísticas", IconType.CHART, e -> navegar("Reportes"), gbc);
         }
 
         // 3. FOOTER
         gbc.gridy++;
-        gbc.weighty = 1.0; 
+        gbc.weighty = 1.0;
         panelMenu.add(Box.createVerticalGlue(), gbc);
 
         gbc.gridy++;
         gbc.weighty = 0;
         gbc.insets = new Insets(10, 0, 5, 0);
-        
+
         JLabel lblUser = new JLabel("Usuario: " + usuarioActual.getUsername());
         lblUser.setFont(new Font("Segoe UI", Font.BOLD, 13));
         lblUser.setForeground(COLOR_BLANCO);
         lblUser.setHorizontalAlignment(SwingConstants.CENTER);
         panelMenu.add(lblUser, gbc);
 
-        // Botón Cerrar Sesión (MÁS GRANDE AHORA)
+        // Botón Cerrar Sesión
         gbc.gridy++;
-        gbc.insets = new Insets(15, 20, 30, 20); // Más margen abajo
+        gbc.insets = new Insets(15, 20, 30, 20);
         JButton btnSalir = createLogoutButton("Cerrar Sesión");
         btnSalir.addActionListener(e -> {
             Sesion.cerrarSesion();
@@ -126,15 +135,15 @@ public class MenuPrincipal extends JFrame {
         JLabel lbl = new JLabel(texto);
         lbl.setFont(new Font("Segoe UI", Font.BOLD, 10));
         lbl.setForeground(new Color(255, 255, 255, 120));
-        
+
         JPanel p = new JPanel(new FlowLayout(FlowLayout.LEFT));
         p.setOpaque(false);
         p.add(lbl);
-        
+
         Insets old = gbc.insets;
         gbc.insets = new Insets(15, 0, 5, 0);
         panelMenu.add(p, gbc);
-        gbc.insets = old; 
+        gbc.insets = old;
     }
 
     private void agregarBoton(String texto, IconType iconType, java.awt.event.ActionListener accion, GridBagConstraints gbc) {
@@ -157,7 +166,7 @@ public class MenuPrincipal extends JFrame {
             public void mouseEntered(MouseEvent e) { btn.setBackground(COLOR_AZUL_HOVER); }
             public void mouseExited(MouseEvent e) { btn.setBackground(COLOR_AZUL_FONDO); }
         });
-        
+
         btn.addActionListener(accion);
         panelMenu.add(btn, gbc);
     }
@@ -169,7 +178,6 @@ public class MenuPrincipal extends JFrame {
                 Graphics2D g2 = (Graphics2D) g.create();
                 g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
                 g2.setColor(getBackground());
-                // Radio de 10px
                 g2.fillRoundRect(0, 0, getWidth(), getHeight(), 10, 10);
                 super.paintComponent(g2);
                 g2.dispose();
@@ -182,10 +190,8 @@ public class MenuPrincipal extends JFrame {
         btn.setBorderPainted(false);
         btn.setContentAreaFilled(false);
         btn.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        
-        // --- AQUÍ ESTÁ EL CAMBIO DE TAMAÑO ---
-        // Ancho: 240, Alto: 55 (Antes 200, 40)
-        btn.setPreferredSize(new Dimension(240, 55)); 
+
+        btn.setPreferredSize(new Dimension(240, 55));
 
         btn.addMouseListener(new MouseAdapter() {
             public void mouseEntered(MouseEvent e) { btn.setBackground(COLOR_ROJO_HOVER); }
