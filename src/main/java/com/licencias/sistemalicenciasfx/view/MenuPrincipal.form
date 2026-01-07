@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<form xmlns="http://www.intellij.com/uidesigner/form/" version="1" bind-to-class="com.licencias.sistemalicenciasfx.view.MenuPrincipal">
+  <grid id="27dc6" binding="panelPrincipal" layout-manager="BorderLayout" hgap="0" vgap="0">
+    <constraints>
+      <xy x="20" y="20" width="1280" height="720"/>
+    </constraints>
+    <properties>
+      <background color="-1118482"/>
+    </properties>
+    <border type="none"/>
+    <children>
+      
+      <grid id="leftPanel" binding="panelMenu" layout-manager="GridBagLayout">
+        <constraints border-constraint="West"/>
+        <properties>
+          <background color="-14796150"/> <preferredSize width="300" height="-1"/>
+          <minimumSize width="300" height="-1"/>
+        </properties>
+        <border type="empty">
+           <size top="30" left="20" bottom="30" right="20"/>
+        </border>
+        <children/>
+      </grid>
+
+      <grid id="centerPanel" binding="panelContenido" layout-manager="BorderLayout" hgap="0" vgap="0">
+        <constraints border-constraint="Center"/>
+        <properties>
+          <background color="-723724"/> </properties>
+        <border type="empty">
+           <size top="40" left="50" bottom="40" right="50"/>
+        </border>
+        <children>
+           
+           <grid id="headerContent" layout-manager="FlowLayout" hgap="0" vgap="0" flow-align="0">
+              <constraints border-constraint="North"/>
+              <properties><opaque value="false"/></properties>
+              <border type="none"/>
+              <children>
+                 <component id="lblTitle" class="javax.swing.JLabel" binding="lblTitulo">
+                    <constraints/>
+                    <properties>
+                       <font name="Segoe UI" size="32" style="1"/>
+                       <foreground color="-14796150"/>
+                       <text value="Bienvenido al Sistema"/>
+                    </properties>
+                 </component>
+              </children>
+           </grid>
+           
+           <grid id="dynamicContent" layout-manager="GridBagLayout">
+              <constraints border-constraint="Center"/>
+              <properties><opaque value="false"/></properties>
+              <border type="none"/>
+              <children>
+                 <component id="lblSub" class="javax.swing.JLabel">
+                    <constraints>
+                       <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="0" fill="0" indent="0" use-parent-layout="false"/>
+                    </constraints>
+                    <properties>
+                       <text value="Seleccione una opción del menú lateral para comenzar."/>
+                       <foreground color="-8355712"/>
+                       <font name="Segoe UI" size="16"/>
+                    </properties>
+                 </component>
+              </children>
+           </grid>
+
+        </children>
+      </grid>
+
+    </children>
+  </grid>
+</form>

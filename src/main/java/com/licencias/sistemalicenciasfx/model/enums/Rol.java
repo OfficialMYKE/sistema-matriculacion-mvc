@@ -1,4 +1,6 @@
 package com.licencias.sistemalicenciasfx.model.enums;
 
-public class Rol {
+public enum Rol {
+    ADMINISTRADOR,
+    ANALISTA
 }
