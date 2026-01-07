@@ -9,12 +9,14 @@
     </properties>
     <border type="none"/>
     <children>
-      
       <grid id="headerPanel" layout-manager="BorderLayout" hgap="0" vgap="0">
         <constraints border-constraint="North"/>
-        <margin top="0" left="0" bottom="0" right="0"/>
-        <properties><background color="-14796150"/></properties>
-        <border type="empty"><size top="15" left="30" bottom="15" right="30"/></border>
+        <properties>
+          <background color="-14796150"/>
+        </properties>
+        <border type="empty">
+          <size top="15" left="30" bottom="15" right="30"/>
+        </border>
         <children>
           <component id="lblTitle" class="javax.swing.JLabel">
             <constraints border-constraint="West"/>
@@ -26,109 +28,175 @@
           </component>
         </children>
       </grid>
-
       <grid id="bodyPanel" layout-manager="GridLayoutManager" row-count="1" column-count="2" same-size-horizontally="false" same-size-vertically="false" hgap="40" vgap="0">
         <margin top="30" left="50" bottom="30" right="50"/>
         <constraints border-constraint="Center"/>
-        <properties><background color="-1"/></properties>
+        <properties>
+          <background color="-1"/>
+        </properties>
         <border type="none"/>
         <children>
-           
-           <grid id="leftPanel" layout-manager="GridLayoutManager" row-count="4" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="10">
-              <margin top="0" left="0" bottom="0" right="0"/>
-              <constraints>
-                 <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false">
-                    <preferred-size width="320" height="-1"/>
-                 </grid>
-              </constraints>
-              <properties><background color="-1"/></properties>
-              <border type="none"/>
-              <children>
-                 <component id="lblFoto" class="javax.swing.JLabel" binding="lblFoto">
-                    <constraints><grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="0" fill="0" indent="0" use-parent-layout="false"><preferred-size width="240" height="320"/></grid></constraints>
-                    <properties><background color="-1"/><opaque value="true"/></properties>
-                 </component>
-                 <component id="lblNombre" class="javax.swing.JLabel" binding="lblNombre">
-                    <constraints><grid row="1" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="0" fill="0" indent="0" use-parent-layout="false"/></constraints>
-                    <properties><text value="POSTULANTE"/><font name="Segoe UI" size="18" style="1"/><foreground color="-13421773"/></properties>
-                 </component>
-                 <component id="lblCedula" class="javax.swing.JLabel" binding="lblCedula">
-                    <constraints><grid row="2" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="0" fill="0" indent="0" use-parent-layout="false"/></constraints>
-                    <properties><text value="---"/><font size="14"/><foreground color="-8355712"/></properties>
-                 </component>
-                 <vspacer id="vs1">
-                    <constraints><grid row="3" column="0" row-span="1" col-span="1" vsize-policy="6" hsize-policy="1" anchor="0" fill="2" indent="0" use-parent-layout="false"/></constraints>
-                 </vspacer>
-              </children>
-           </grid>
-
-           <grid id="rightPanel" layout-manager="GridLayoutManager" row-count="6" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="15">
-              <margin top="0" left="0" bottom="0" right="0"/>
-              <constraints>
-                 <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
-              </constraints>
-              <properties><background color="-1"/></properties>
-              <border type="none"/>
-              <children>
-                 <component id="lblSecTitle" class="javax.swing.JLabel">
-                    <constraints><grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/></constraints>
-                    <properties><text value="Ingreso de Calificaciones"/><font name="Segoe UI" size="20" style="1"/><foreground color="-13421773"/></properties>
-                 </component>
-
-                 <grid id="grpTeo" layout-manager="GridLayoutManager" row-count="2" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="2">
-                    <margin top="0" left="0" bottom="0" right="0"/>
-                    <constraints><grid row="1" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/></constraints>
-                    <properties><background color="-1"/></properties>
-                    <border type="none"/>
-                    <children>
-                        <component id="lblTeo" class="javax.swing.JLabel">
-                            <constraints><grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/></constraints>
-                            <properties><text value="Nota Examen Teórico (0 - 20):"/><font style="1"/></properties>
-                        </component>
-                        <component id="txtNotaTeorica" class="javax.swing.JTextField" binding="txtNotaTeorica">
-                            <constraints><grid row="1" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false"><preferred-size width="-1" height="40"/></grid></constraints>
-                            <properties/>
-                        </component>
-                    </children>
-                 </grid>
-
-                 <grid id="grpPrac" layout-manager="GridLayoutManager" row-count="2" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="2">
-                    <margin top="0" left="0" bottom="0" right="0"/>
-                    <constraints><grid row="2" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/></constraints>
-                    <properties><background color="-1"/></properties>
-                    <border type="none"/>
-                    <children>
-                        <component id="lblPrac" class="javax.swing.JLabel">
-                            <constraints><grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/></constraints>
-                            <properties><text value="Nota Examen Práctico (0 - 20):"/><font style="1"/></properties>
-                        </component>
-                        <component id="txtNotaPractica" class="javax.swing.JTextField" binding="txtNotaPractica">
-                            <constraints><grid row="1" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false"><preferred-size width="-1" height="40"/></grid></constraints>
-                            <properties/>
-                        </component>
-                    </children>
-                 </grid>
-
-                 <vspacer id="vs2">
-                    <constraints><grid row="3" column="0" row-span="1" col-span="1" vsize-policy="6" hsize-policy="1" anchor="0" fill="2" indent="0" use-parent-layout="false"/></constraints>
-                 </vspacer>
-
-                 <grid id="btnPanel" layout-manager="FlowLayout" hgap="15" vgap="10" flow-align="2">
-                    <constraints><grid row="4" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/></constraints>
-                    <margin top="0" left="0" bottom="0" right="0"/>
-                    <properties><background color="-1"/></properties>
-                    <border type="none"/>
-                    <children>
-                        <component id="btnRegresar" class="javax.swing.JButton" binding="btnRegresar">
-                            <constraints/> <properties><text value="Regresar"/><preferredSize width="110" height="40"/></properties>
-                        </component>
-                        <component id="btnGuardar" class="javax.swing.JButton" binding="btnGuardar">
-                            <constraints/> <properties><text value="Guardar Resultados"/><preferredSize width="180" height="40"/></properties>
-                        </component>
-                    </children>
-                 </grid>
-              </children>
-           </grid>
+          <grid id="leftPanel" layout-manager="GridLayoutManager" row-count="4" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="10">
+            <margin top="0" left="0" bottom="0" right="0"/>
+            <constraints>
+              <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false">
+                <preferred-size width="320" height="-1"/>
+              </grid>
+            </constraints>
+            <properties>
+              <background color="-1"/>
+            </properties>
+            <border type="none"/>
+            <children>
+              <component id="lblFoto" class="javax.swing.JLabel" binding="lblFoto">
+                <constraints>
+                  <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="0" fill="0" indent="0" use-parent-layout="false">
+                    <preferred-size width="240" height="320"/>
+                  </grid>
+                </constraints>
+                <properties>
+                  <background color="-1"/>
+                  <opaque value="true"/>
+                </properties>
+              </component>
+              <component id="lblNombre" class="javax.swing.JLabel" binding="lblNombre">
+                <constraints>
+                  <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="0" fill="0" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties>
+                  <font name="Segoe UI" size="18" style="1"/>
+                  <foreground color="-13421773"/>
+                  <text value="POSTULANTE"/>
+                </properties>
+              </component>
+              <component id="lblCedula" class="javax.swing.JLabel" binding="lblCedula">
+                <constraints>
+                  <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="0" fill="0" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties>
+                  <font size="14"/>
+                  <foreground color="-8355712"/>
+                  <text value="---"/>
+                </properties>
+              </component>
+              <vspacer id="vs1">
+                <constraints>
+                  <grid row="3" column="0" row-span="1" col-span="1" vsize-policy="6" hsize-policy="1" anchor="0" fill="2" indent="0" use-parent-layout="false"/>
+                </constraints>
+              </vspacer>
+            </children>
+          </grid>
+          <grid id="rightPanel" layout-manager="GridLayoutManager" row-count="6" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="15">
+            <margin top="0" left="0" bottom="0" right="0"/>
+            <constraints>
+              <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+            </constraints>
+            <properties>
+              <background color="-1"/>
+            </properties>
+            <border type="none"/>
+            <children>
+              <component id="lblSecTitle" class="javax.swing.JLabel">
+                <constraints>
+                  <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties>
+                  <font name="Segoe UI" size="20" style="1"/>
+                  <foreground color="-13421773"/>
+                  <text value="Ingreso de Calificaciones"/>
+                </properties>
+              </component>
+              <grid id="grpTeo" layout-manager="GridLayoutManager" row-count="2" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="2">
+                <margin top="0" left="0" bottom="0" right="0"/>
+                <constraints>
+                  <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties>
+                  <background color="-1"/>
+                </properties>
+                <border type="none"/>
+                <children>
+                  <component id="lblTeo" class="javax.swing.JLabel">
+                    <constraints>
+                      <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                    </constraints>
+                    <properties>
+                      <font style="1"/>
+                      <text value="Nota Examen Teórico (0 - 20):"/>
+                    </properties>
+                  </component>
+                  <component id="txtNotaTeorica" class="javax.swing.JTextField" binding="txtNotaTeorica">
+                    <constraints>
+                      <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
+                        <preferred-size width="-1" height="40"/>
+                      </grid>
+                    </constraints>
+                    <properties/>
+                  </component>
+                </children>
+              </grid>
+              <grid id="grpPrac" layout-manager="GridLayoutManager" row-count="2" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="2">
+                <margin top="0" left="0" bottom="0" right="0"/>
+                <constraints>
+                  <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties>
+                  <background color="-1"/>
+                </properties>
+                <border type="none"/>
+                <children>
+                  <component id="lblPrac" class="javax.swing.JLabel">
+                    <constraints>
+                      <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                    </constraints>
+                    <properties>
+                      <font style="1"/>
+                      <text value="Nota Examen Práctico (0 - 20):"/>
+                    </properties>
+                  </component>
+                  <component id="txtNotaPractica" class="javax.swing.JTextField" binding="txtNotaPractica">
+                    <constraints>
+                      <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
+                        <preferred-size width="-1" height="40"/>
+                      </grid>
+                    </constraints>
+                    <properties/>
+                  </component>
+                </children>
+              </grid>
+              <vspacer id="vs2">
+                <constraints>
+                  <grid row="3" column="0" row-span="1" col-span="1" vsize-policy="6" hsize-policy="1" anchor="0" fill="2" indent="0" use-parent-layout="false"/>
+                </constraints>
+              </vspacer>
+              <grid id="btnPanel" layout-manager="FlowLayout" hgap="15" vgap="10" flow-align="2">
+                <constraints>
+                  <grid row="4" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties>
+                  <background color="-1"/>
+                </properties>
+                <border type="none"/>
+                <children>
+                  <component id="btnRegresar" class="javax.swing.JButton" binding="btnRegresar">
+                    <constraints/>
+                    <properties>
+                      <preferredSize width="110" height="40"/>
+                      <text value="Regresar"/>
+                    </properties>
+                  </component>
+                  <component id="btnGuardar" class="javax.swing.JButton" binding="btnGuardar">
+                    <constraints/>
+                    <properties>
+                      <background color="-1"/>
+                      <preferredSize width="180" height="40"/>
+                      <text value="Guardar Resultados"/>
+                    </properties>
+                  </component>
+                </children>
+              </grid>
+            </children>
+          </grid>
         </children>
       </grid>
     </children>

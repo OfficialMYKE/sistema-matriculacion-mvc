@@ -38,10 +38,10 @@ public class VerificacionRequisitos extends JFrame {
     private final SupabaseService supabaseService;
     private Solicitante solicitanteActual;
 
-    // CONFIGURACIÓN ESTÉTICA IDENTICA A REGISTRO
+    // CONFIGURACIÓN ESTÉTICA
     private final Color COLOR_BG_INPUT = new Color(248, 249, 250);
     private final Color COLOR_BORDER_INPUT = new Color(200, 200, 200);
-    private final Color COLOR_ACCENT = new Color(30, 58, 138); 
+    private final Color COLOR_ACCENT = new Color(30, 58, 138);
     private final Color COLOR_DANGER = new Color(220, 53, 69);
 
     public VerificacionRequisitos() {
@@ -73,12 +73,12 @@ public class VerificacionRequisitos extends JFrame {
         txtObservaciones.setFont(new Font("Segoe UI", Font.PLAIN, 14));
         txtObservaciones.setBorder(new CompoundBorder(new LineBorder(COLOR_BORDER_INPUT, 1), new EmptyBorder(10, 10, 10, 10)));
 
-        // BOTONES ACCIÓN IDENTICOS A REGISTRO
+        // BOTONES ACCIÓN CON TEXTO BLANCO FORZADO
         estilizarBoton(btnAprobar, COLOR_ACCENT, Color.WHITE);
         estilizarBoton(btnRechazar, COLOR_DANGER, Color.WHITE);
         estilizarBoton(btnRegresar, Color.WHITE, Color.DARK_GRAY);
         btnRegresar.setBorder(new LineBorder(COLOR_BORDER_INPUT, 1));
-        
+
         setControlesHabilitados(false);
     }
 
@@ -86,8 +86,9 @@ public class VerificacionRequisitos extends JFrame {
         btn.setBackground(bg);
         btn.setForeground(fg);
         btn.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+
         btn.setFocusPainted(false);
-        btn.setBorderPainted(bg == Color.WHITE);
+        btn.setBorderPainted(false);
         btn.setContentAreaFilled(false);
         btn.setOpaque(false);
         btn.setCursor(new Cursor(Cursor.HAND_CURSOR));
@@ -97,16 +98,45 @@ public class VerificacionRequisitos extends JFrame {
             public void paint(Graphics g, JComponent c) {
                 Graphics2D g2 = (Graphics2D) g.create();
                 g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+
                 g2.setColor(c.getBackground());
-                g2.fillRoundRect(0, 0, c.getWidth(), c.getHeight(), 20, 20); // RADIO 20PX
+                g2.fillRoundRect(0, 0, c.getWidth(), c.getHeight(), 20, 20);
                 g2.dispose();
+
+                // Llamar al método padre para procesar el resto
                 super.paint(g, c);
+            }
+
+            @Override
+            protected void paintText(Graphics g, AbstractButton b, Rectangle textRect, String text) {
+                Graphics2D g2 = (Graphics2D) g.create();
+                // FORZAR COLOR BLANCO (u otro que pases)
+                g2.setColor(b.getForeground());
+
+                g2.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+                g2.setFont(b.getFont()); // Usa la fuente Plain definida arriba
+
+                FontMetrics fm = g2.getFontMetrics();
+                int x = textRect.x + (textRect.width - fm.stringWidth(text)) / 2;
+                int y = textRect.y + fm.getAscent();
+
+                g2.drawString(text, x, y);
+                g2.dispose();
             }
         });
 
+        // Mantener consistencia de color en eventos
         btn.addMouseListener(new MouseAdapter() {
-            public void mouseEntered(MouseEvent e) { btn.setBackground(bg.darker()); }
-            public void mouseExited(MouseEvent e) { btn.setBackground(bg); }
+            @Override
+            public void mouseEntered(MouseEvent e) {
+                btn.setBackground(bg.darker());
+                btn.setForeground(fg);
+            }
+            @Override
+            public void mouseExited(MouseEvent e) {
+                btn.setBackground(bg);
+                btn.setForeground(fg);
+            }
         });
     }
 

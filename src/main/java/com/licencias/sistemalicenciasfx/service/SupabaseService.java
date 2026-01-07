@@ -10,23 +10,19 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
-import java.sql.Connection;
-import java.sql.Date;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
 public class SupabaseService {
 
-    // --- CONFIGURACIÓN SUPABASE ---
+    // CONFIGURACIÓN SUPABASE
     private static final String PROJECT_URL = "https://sbxndvnhvwdppcgomkda.supabase.co";
     private static final String SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNieG5kdm5odndkcHBjZ29ta2RhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njc3MTY2MzIsImV4cCI6MjA4MzI5MjYzMn0.W8P3KH6M5oTI-UwoG5xkCjRdefMo8iatxhbfxg9tOOo";
     private static final String BUCKET_NAME = "fotos_solicitantes";
 
-    // --- 1. GUARDAR NUEVO SOLICITANTE ---
+    // GUARDAR NUEVO SOLICITANTE
     public boolean guardarSolicitante(String cedula, String nombres, String apellidos,
                                       String email, String celular, String dir,
                                       String tipo, LocalDate fechaNacimiento, String fotoUrl) {
@@ -55,41 +51,37 @@ public class SupabaseService {
         }
     }
 
-    // --- 2. OBTENER SIGUIENTE PENDIENTE (FASE DOCUMENTAL) ---
+    // OBTENER SIGUIENTE PENDIENTE (FASE DOCUMENTAL)
     public Solicitante obtenerSiguientePendiente() {
         String sql = "SELECT * FROM solicitantes WHERE estado = 'PENDIENTE' ORDER BY fecha_registro ASC LIMIT 1";
-
-        try (Connection conn = DatabaseConfig.getInstance().obtenerConexion();
-             PreparedStatement pstmt = conn.prepareStatement(sql);
-             ResultSet rs = pstmt.executeQuery()) {
-
-            if (rs.next()) {
-                return mapResultSetToSolicitante(rs);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return null;
+        return ejecutarConsultaUnica(sql);
     }
 
-    // --- 3. OBTENER SIGUIENTE PARA EXAMEN (FASE TEÓRICO/PRÁCTICO) ---
+    // OBTENER SIGUIENTE PARA EXAMEN (FASE TEÓRICO/PRÁCTICO)
     public Solicitante obtenerSiguienteParaExamen() {
         String sql = "SELECT * FROM solicitantes WHERE estado = 'EN_EXAMENES' ORDER BY fecha_registro ASC LIMIT 1";
+        return ejecutarConsultaUnica(sql);
+    }
+
+    // OBTENER TODOS LOS TRÁMITES (PARA GESTIÓN GLOBAL)
+    public List<Solicitante> obtenerTodosLosTramites() {
+        List<Solicitante> lista = new ArrayList<>();
+        String sql = "SELECT * FROM solicitantes ORDER BY fecha_registro DESC";
 
         try (Connection conn = DatabaseConfig.getInstance().obtenerConexion();
              PreparedStatement pstmt = conn.prepareStatement(sql);
              ResultSet rs = pstmt.executeQuery()) {
 
-            if (rs.next()) {
-                return mapResultSetToSolicitante(rs);
+            while (rs.next()) {
+                lista.add(mapResultSetToSolicitante(rs));
             }
         } catch (Exception e) {
-            System.err.println("Error al obtener postulante para examen: " + e.getMessage());
+            System.err.println("Error al obtener todos los trámites: " + e.getMessage());
         }
-        return null;
+        return lista;
     }
 
-    // --- 4. BUSCAR SOLICITANTES POR FILTRO ---
+    // BUSCAR SOLICITANTES POR FILTRO
     public List<Solicitante> buscarPendientes(String filtro) {
         List<Solicitante> lista = new ArrayList<>();
         String sql = "SELECT * FROM solicitantes WHERE estado = 'PENDIENTE' AND (cedula ILIKE ? OR apellidos ILIKE ? OR nombres ILIKE ?)";
@@ -113,7 +105,7 @@ public class SupabaseService {
         return lista;
     }
 
-    // --- 5. ACTUALIZAR ESTADO (PARA VERIFICACIÓN) ---
+    // ACTUALIZAR ESTADO
     public boolean actualizarEstadoSolicitante(String cedula, String nuevoEstado, String observaciones) {
         String sql = "UPDATE solicitantes SET estado = ?, observaciones = ? WHERE cedula = ?";
         try (Connection conn = DatabaseConfig.getInstance().obtenerConexion();
@@ -127,7 +119,7 @@ public class SupabaseService {
         }
     }
 
-    // --- 6. REGISTRAR NOTAS Y ESTADO FINAL DE EXÁMENES ---
+    // REGISTRAR NOTAS Y ESTADO FINAL
     public boolean registrarResultadosExamenes(String cedula, double notaTeo, double notaPrac, String estadoFinal) {
         String sql = "UPDATE solicitantes SET nota_teorica = ?, nota_practica = ?, estado = ?, observaciones = ? WHERE cedula = ?";
 
@@ -148,7 +140,7 @@ public class SupabaseService {
         }
     }
 
-    // --- 7. SUBIR IMAGEN A STORAGE ---
+    // SUBIR IMAGEN A STORAGE
     public String subirImagen(File archivo, String cedula) {
         if (archivo == null) return null;
         try {
@@ -173,7 +165,22 @@ public class SupabaseService {
         return null;
     }
 
-    // --- HELPER: MAPEO DE RESULT SET A OBJETO SOLICITANTE ---
+    // HELPERS PRIVADOS
+
+    private Solicitante ejecutarConsultaUnica(String sql) {
+        try (Connection conn = DatabaseConfig.getInstance().obtenerConexion();
+             PreparedStatement pstmt = conn.prepareStatement(sql);
+             ResultSet rs = pstmt.executeQuery()) {
+
+            if (rs.next()) {
+                return mapResultSetToSolicitante(rs);
+            }
+        } catch (Exception e) {
+            System.err.println("Error en consulta única: " + e.getMessage());
+        }
+        return null;
+    }
+
     private Solicitante mapResultSetToSolicitante(ResultSet rs) throws SQLException {
         Date sqlDate = rs.getDate("fecha_nacimiento");
         LocalDate fechaNac = (sqlDate != null) ? sqlDate.toLocalDate() : LocalDate.of(2000, 1, 1);

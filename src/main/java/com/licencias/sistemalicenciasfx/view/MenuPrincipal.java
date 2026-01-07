@@ -88,15 +88,20 @@ public class MenuPrincipal extends JFrame {
             new VerificacionRequisitos().setVisible(true);
         }, gbc);
 
-        // --- REGISTRAR EXÁMENES (AQUÍ ESTÁ EL CAMBIO) ---
+        // --- REGISTRAR EXÁMENES ---
         gbc.gridy++;
         agregarBoton("Registrar Exámenes", IconType.DOC_EDIT, e -> {
             navegar("Registrar Exámenes");
             new RegistroExamenes().setVisible(true);
         }, gbc);
 
-        // Otros botones (funcionalidad pendiente)
-        gbc.gridy++; agregarBoton("Gestión de Trámites", IconType.FOLDER, e -> navegar("Gestión de Trámites"), gbc);
+        // --- GESTIÓN DE TRÁMITES (IMPLEMENTADO) ---
+        gbc.gridy++;
+        agregarBoton("Gestión de Trámites", IconType.FOLDER, e -> {
+            navegar("Gestión de Trámites");
+            new GestionTramites().setVisible(true);
+        }, gbc);
+
         gbc.gridy++; agregarBoton("Generar Licencia", IconType.CARD, e -> navegar("Generar Licencia"), gbc);
 
         if (usuarioActual.getRol() == Rol.ADMINISTRADOR) {
@@ -138,6 +143,8 @@ public class MenuPrincipal extends JFrame {
         panelMenu.revalidate();
         panelMenu.repaint();
     }
+
+    // --- HELPERS VISUALES ---
 
     private void agregarSeparador(String texto, GridBagConstraints gbc) {
         JLabel lbl = new JLabel(texto);

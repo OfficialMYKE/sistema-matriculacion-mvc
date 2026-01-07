@@ -42,6 +42,7 @@
               <component id="btnBuscar" class="javax.swing.JButton" binding="btnBuscar">
                 <constraints/>
                 <properties>
+                  <font size="14"/>
                   <preferredSize width="90" height="35"/>
                   <text value="Buscar"/>
                 </properties>
@@ -299,6 +300,7 @@
                   <component id="btnRegresar" class="javax.swing.JButton" binding="btnRegresar">
                     <constraints/>
                     <properties>
+                      <font size="14" style="0"/>
                       <preferredSize width="120" height="45"/>
                       <text value="Regresar"/>
                     </properties>
@@ -306,6 +308,8 @@
                   <component id="btnRechazar" class="javax.swing.JButton" binding="btnRechazar">
                     <constraints/>
                     <properties>
+                      <font size="14" style="0"/>
+                      <foreground color="-1"/>
                       <preferredSize width="160" height="45"/>
                       <text value="Rechazar"/>
                     </properties>
@@ -313,6 +317,8 @@
                   <component id="btnAprobar" class="javax.swing.JButton" binding="btnAprobar">
                     <constraints/>
                     <properties>
+                      <font size="14" style="0"/>
+                      <foreground color="-1"/>
                       <preferredSize width="200" height="45"/>
                       <text value="Aprobar"/>
                     </properties>

@@ -28,10 +28,10 @@ public class RegistroExamenes extends JFrame {
     private final SupabaseService supabaseService;
     private Solicitante solicitanteActual;
 
-    // CONFIGURACIÓN ESTÉTICA UNIFICADA
+    // CONFIGURACIÓN ESTÉTICA
     private final Color COLOR_BG_INPUT = new Color(248, 249, 250);
     private final Color COLOR_BORDER_INPUT = new Color(200, 200, 200);
-    private final Color COLOR_ACCENT = new Color(30, 58, 138); 
+    private final Color COLOR_ACCENT = new Color(30, 58, 138);
     private final Color COLOR_DANGER = new Color(220, 53, 69);
 
     public RegistroExamenes() {
@@ -54,7 +54,7 @@ public class RegistroExamenes extends JFrame {
         lblFoto.setBorder(new LineBorder(COLOR_BORDER_INPUT, 1));
         pintarPlaceholderFoto();
 
-        // BOTONES ACCIÓN IDENTICOS A REGISTRO
+        // BOTONES ACCIÓN CON TEXTO REGULAR Y COLOR FORZADO
         estilizarBoton(btnGuardar, COLOR_ACCENT, Color.WHITE);
         estilizarBoton(btnRegresar, Color.WHITE, Color.DARK_GRAY);
         btnRegresar.setBorder(new LineBorder(COLOR_BORDER_INPUT, 1));
@@ -65,7 +65,7 @@ public class RegistroExamenes extends JFrame {
         campo.setBackground(COLOR_BG_INPUT);
         campo.setFont(new Font("Segoe UI", Font.PLAIN, 14));
         campo.setBorder(new CompoundBorder(new LineBorder(COLOR_BORDER_INPUT, 1), new EmptyBorder(10, 15, 10, 15)));
-        
+
         campo.addFocusListener(new FocusAdapter() {
             @Override
             public void focusGained(FocusEvent e) {
@@ -83,7 +83,8 @@ public class RegistroExamenes extends JFrame {
     private void estilizarBoton(JButton btn, Color bg, Color fg) {
         btn.setBackground(bg);
         btn.setForeground(fg);
-        btn.setFont(new Font("Segoe UI", Font.PLAIN, 14)); 
+        // TEXTO REGULAR (PLAIN)
+        btn.setFont(new Font("Segoe UI", Font.PLAIN, 14));
         btn.setFocusPainted(false);
         btn.setBorderPainted(bg == Color.WHITE);
         btn.setContentAreaFilled(false);
@@ -96,15 +97,36 @@ public class RegistroExamenes extends JFrame {
                 Graphics2D g2 = (Graphics2D) g.create();
                 g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
                 g2.setColor(c.getBackground());
-                g2.fillRoundRect(0, 0, c.getWidth(), c.getHeight(), 20, 20); 
+                g2.fillRoundRect(0, 0, c.getWidth(), c.getHeight(), 20, 20);
                 g2.dispose();
                 super.paint(g, c);
+            }
+
+            @Override
+            protected void paintText(Graphics g, AbstractButton b, Rectangle textRect, String text) {
+                Graphics2D g2 = (Graphics2D) g.create();
+                g2.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+                g2.setColor(b.getForeground()); // Asegura el color blanco u otro pasado
+                g2.setFont(b.getFont());
+
+                FontMetrics fm = g2.getFontMetrics();
+                int x = textRect.x + (textRect.width - fm.stringWidth(text)) / 2;
+                int y = textRect.y + fm.getAscent();
+
+                g2.drawString(text, x, y);
+                g2.dispose();
             }
         });
 
         btn.addMouseListener(new MouseAdapter() {
-            public void mouseEntered(MouseEvent e) { btn.setBackground(bg.darker()); }
-            public void mouseExited(MouseEvent e) { btn.setBackground(bg); }
+            public void mouseEntered(MouseEvent e) {
+                btn.setBackground(bg.darker());
+                btn.setForeground(fg);
+            }
+            public void mouseExited(MouseEvent e) {
+                btn.setBackground(bg);
+                btn.setForeground(fg);
+            }
         });
     }
 
@@ -127,7 +149,7 @@ public class RegistroExamenes extends JFrame {
 
         btnGuardar.addActionListener(e -> {
             if(solicitanteActual == null) return;
-            
+
             try {
                 double teo = Double.parseDouble(txtNotaTeorica.getText());
                 double prac = Double.parseDouble(txtNotaPractica.getText());
@@ -139,7 +161,7 @@ public class RegistroExamenes extends JFrame {
 
                 String nuevoEstado = (teo >= 14 && prac >= 14) ? "APROBADO" : "REPROBADO";
                 String obs = "Nota Teoría: " + teo + " | Nota Práctica: " + prac;
-                
+
                 new Thread(() -> {
                     if(supabaseService.actualizarEstadoSolicitante(solicitanteActual.getCedula(), nuevoEstado, obs)) {
                         SwingUtilities.invokeLater(() -> {
