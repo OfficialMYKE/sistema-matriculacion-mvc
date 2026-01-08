@@ -31,6 +31,7 @@ public class GestionTramites extends JFrame {
     private DefaultTableModel tableModel;
     private final SupabaseService supabaseService;
 
+    // COLORES
     private final Color COLOR_BG_INPUT = new Color(248, 249, 250);
     private final Color COLOR_BORDER_INPUT = new Color(200, 200, 200);
     private final Color COLOR_ACCENT = new Color(30, 58, 138);
@@ -57,7 +58,6 @@ public class GestionTramites extends JFrame {
         cmbFiltroEstado.setBorder(new LineBorder(COLOR_BORDER_INPUT, 1));
         cmbFiltroEstado.setFont(new Font("Segoe UI", Font.PLAIN, 14));
 
-        // BOTONES CON TEXTO REGULAR Y COLOR BLANCO FORZADO
         estilizarBoton(btnVerDetalle, COLOR_ACCENT, Color.WHITE);
         estilizarBoton(btnActualizar, COLOR_ACCENT, Color.WHITE);
         estilizarBoton(btnRegresar, Color.WHITE, Color.DARK_GRAY);
@@ -87,7 +87,7 @@ public class GestionTramites extends JFrame {
     private void estilizarBoton(JButton btn, Color bg, Color fg) {
         btn.setBackground(bg);
         btn.setForeground(fg);
-        btn.setFont(new Font("Segoe UI", Font.PLAIN, 14)); // Estilo REGULAR
+        btn.setFont(new Font("Segoe UI", Font.PLAIN, 14));
         btn.setFocusPainted(false);
         btn.setBorderPainted(bg == Color.WHITE);
         btn.setContentAreaFilled(false);
@@ -109,7 +109,7 @@ public class GestionTramites extends JFrame {
             protected void paintText(Graphics g, AbstractButton b, Rectangle textRect, String text) {
                 Graphics2D g2 = (Graphics2D) g.create();
                 g2.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
-                g2.setColor(b.getForeground()); // Forzado de color
+                g2.setColor(b.getForeground());
                 g2.setFont(b.getFont());
 
                 FontMetrics fm = g2.getFontMetrics();
@@ -122,14 +122,8 @@ public class GestionTramites extends JFrame {
         });
 
         btn.addMouseListener(new MouseAdapter() {
-            public void mouseEntered(MouseEvent e) {
-                btn.setBackground(bg.darker());
-                btn.setForeground(fg);
-            }
-            public void mouseExited(MouseEvent e) {
-                btn.setBackground(bg);
-                btn.setForeground(fg);
-            }
+            public void mouseEntered(MouseEvent e) { btn.setBackground(bg.darker()); btn.setForeground(fg); }
+            public void mouseExited(MouseEvent e) { btn.setBackground(bg); btn.setForeground(fg); }
         });
     }
 
@@ -189,16 +183,34 @@ public class GestionTramites extends JFrame {
         });
         cmbFiltroEstado.addActionListener(e -> filtrar());
 
+        // LÓGICA DE ACCIÓN SEGÚN ESTADO
         btnVerDetalle.addActionListener(e -> {
             int row = tblTramites.getSelectedRow();
             if (row == -1) {
-                JOptionPane.showMessageDialog(this, "Seleccione un trámite.");
+                JOptionPane.showMessageDialog(this, "Seleccione un trámite de la lista.");
                 return;
             }
+            String cedula = (String) tblTramites.getValueAt(row, 1);
             String estado = (String) tblTramites.getValueAt(row, 4);
-            if(estado.equals("PENDIENTE")) new VerificacionRequisitos().setVisible(true);
-            else if(estado.equals("EN_EXAMENES")) new RegistroExamenes().setVisible(true);
-            else JOptionPane.showMessageDialog(this, "Estado del trámite: " + estado);
+
+            switch(estado) {
+                case "PENDIENTE":
+                    // Si es PENDIENTE -> Vamos a verificar requisitos
+                    new VerificacionRequisitos().setVisible(true);
+                    break;
+                case "EN_EXAMENES":
+                    // Si está EN EXÁMENES -> Vamos a registrar notas
+                    new RegistroExamenes().setVisible(true);
+                    break;
+                case "APROBADO":
+                case "LICENCIA_EMITIDA":
+                case "REPROBADO":
+                    // Si ya está FINALIZADO o APROBADO -> Vamos al Detalle Integral (Generar Licencia)
+                    new DetalleTramite(cedula).setVisible(true);
+                    break;
+                default:
+                    JOptionPane.showMessageDialog(this, "Estado desconocido: " + estado);
+            }
         });
     }
 

@@ -15,15 +15,15 @@ public class MenuPrincipal extends JFrame {
 
     private JPanel panelPrincipal;
     private JPanel panelMenu;
-    private JPanel panelContenido;
+    private JPanel panelContenido; // Placeholder para contenido dinámico si se usara
     private JLabel lblTitulo;
 
     private final Usuario usuarioActual;
 
     // --- COLORES ---
-    private final Color COLOR_AZUL_FONDO = new Color(30, 58, 138); // #1E3A8A
+    private final Color COLOR_AZUL_FONDO = new Color(30, 58, 138);
     private final Color COLOR_AZUL_HOVER = new Color(255, 255, 255, 25);
-    private final Color COLOR_ROJO_PRO = new Color(198, 40, 40); // Rojo Carmesí
+    private final Color COLOR_ROJO_PRO = new Color(198, 40, 40);
     private final Color COLOR_ROJO_HOVER = new Color(183, 28, 28);
     private final Color COLOR_BLANCO = Color.WHITE;
     private final Color COLOR_TEXTO_SECUNDARIO = new Color(229, 231, 235);
@@ -71,45 +71,58 @@ public class MenuPrincipal extends JFrame {
         gbc.gridy++;
         panelMenu.add(Box.createVerticalStrut(40), gbc);
 
-        // 2. BOTONES
+        // 2. BOTONES OPERACIONES
         gbc.gridy++; agregarSeparador("OPERACIONES", gbc);
 
-        // --- REGISTRAR SOLICITANTE ---
         gbc.gridy++;
         agregarBoton("Registrar Solicitante", IconType.USER_ADD, e -> {
             navegar("Registrar Solicitante");
             new RegistroSolicitante().setVisible(true);
         }, gbc);
 
-        // --- VERIFICAR REQUISITOS ---
         gbc.gridy++;
         agregarBoton("Verificar Requisitos", IconType.CHECK, e -> {
             navegar("Verificar Requisitos");
             new VerificacionRequisitos().setVisible(true);
         }, gbc);
 
-        // --- REGISTRAR EXÁMENES ---
         gbc.gridy++;
         agregarBoton("Registrar Exámenes", IconType.DOC_EDIT, e -> {
             navegar("Registrar Exámenes");
             new RegistroExamenes().setVisible(true);
         }, gbc);
 
-        // --- GESTIÓN DE TRÁMITES (IMPLEMENTADO) ---
         gbc.gridy++;
         agregarBoton("Gestión de Trámites", IconType.FOLDER, e -> {
             navegar("Gestión de Trámites");
             new GestionTramites().setVisible(true);
         }, gbc);
 
-        gbc.gridy++; agregarBoton("Generar Licencia", IconType.CARD, e -> navegar("Generar Licencia"), gbc);
+        // --- DETALLE DE TRÁMITE ---
+        gbc.gridy++;
+        agregarBoton("Detalle de Trámite", IconType.SEARCH, e -> {
+            String cedula = JOptionPane.showInputDialog(this, "Ingrese la cédula del postulante:", "Buscar Trámite", JOptionPane.QUESTION_MESSAGE);
+            if (cedula != null && !cedula.trim().isEmpty()) {
+                navegar("Detalle de Trámite - " + cedula);
+                new DetalleTramite(cedula).setVisible(true);
+            }
+        }, gbc);
 
+        // --- GENERAR LICENCIA (NUEVO) ---
+        gbc.gridy++;
+        agregarBoton("Generar Licencia", IconType.CARD, e -> {
+            String cedula = JOptionPane.showInputDialog(this, "Ingrese la cédula para emitir licencia:", "Generar Licencia", JOptionPane.QUESTION_MESSAGE);
+            if (cedula != null && !cedula.trim().isEmpty()) {
+                navegar("Generar Licencia - " + cedula);
+                new GenerarLicencia(cedula).setVisible(true);
+            }
+        }, gbc);
+
+        // SECCIÓN ADMINISTRACIÓN
         if (usuarioActual.getRol() == Rol.ADMINISTRADOR) {
             gbc.gridy++;
             panelMenu.add(Box.createVerticalStrut(15), gbc);
-
             gbc.gridy++; agregarSeparador("ADMINISTRACIÓN", gbc);
-
             gbc.gridy++; agregarBoton("Gestión de Usuarios", IconType.GROUP, e -> navegar("Gestión de Usuarios"), gbc);
             gbc.gridy++; agregarBoton("Reportes y Estadísticas", IconType.CHART, e -> navegar("Reportes"), gbc);
         }
@@ -129,7 +142,6 @@ public class MenuPrincipal extends JFrame {
         lblUser.setHorizontalAlignment(SwingConstants.CENTER);
         panelMenu.add(lblUser, gbc);
 
-        // Botón Cerrar Sesión
         gbc.gridy++;
         gbc.insets = new Insets(15, 20, 30, 20);
         JButton btnSalir = createLogoutButton("Cerrar Sesión");
@@ -144,21 +156,15 @@ public class MenuPrincipal extends JFrame {
         panelMenu.repaint();
     }
 
-    // --- HELPERS VISUALES ---
-
     private void agregarSeparador(String texto, GridBagConstraints gbc) {
         JLabel lbl = new JLabel(texto);
         lbl.setFont(new Font("Segoe UI", Font.BOLD, 10));
         lbl.setForeground(new Color(255, 255, 255, 120));
-
         JPanel p = new JPanel(new FlowLayout(FlowLayout.LEFT));
         p.setOpaque(false);
         p.add(lbl);
-
-        Insets old = gbc.insets;
         gbc.insets = new Insets(15, 0, 5, 0);
         panelMenu.add(p, gbc);
-        gbc.insets = old;
     }
 
     private void agregarBoton(String texto, IconType iconType, java.awt.event.ActionListener accion, GridBagConstraints gbc) {
@@ -205,7 +211,6 @@ public class MenuPrincipal extends JFrame {
         btn.setBorderPainted(false);
         btn.setContentAreaFilled(false);
         btn.setCursor(new Cursor(Cursor.HAND_CURSOR));
-
         btn.setPreferredSize(new Dimension(240, 55));
 
         btn.addMouseListener(new MouseAdapter() {
@@ -219,7 +224,7 @@ public class MenuPrincipal extends JFrame {
         if(lblTitulo != null) lblTitulo.setText(titulo);
     }
 
-    private enum IconType { USER_ADD, CHECK, DOC_EDIT, FOLDER, CARD, GROUP, CHART }
+    private enum IconType { USER_ADD, CHECK, DOC_EDIT, FOLDER, CARD, GROUP, CHART, SEARCH }
 
     private static class VectorIcon implements Icon {
         private final IconType type;
@@ -277,6 +282,10 @@ public class MenuPrincipal extends JFrame {
                     g2.drawLine(2, 16, 16, 16);
                     g2.drawLine(2, 2, 2, 16);
                     g2.drawPolyline(new int[]{2, 6, 10, 14}, new int[]{12, 8, 10, 4}, 4);
+                    break;
+                case SEARCH:
+                    g2.drawOval(3, 3, 9, 9);
+                    g2.drawLine(11, 11, 16, 16);
                     break;
             }
             g2.dispose();
