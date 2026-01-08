@@ -34,7 +34,7 @@ public class GenerarLicencia extends JFrame {
     private LocalDate fechaVencimiento;
 
     // PALETA DE COLORES
-    private final Color COLOR_PRIMARY = new Color(30, 58, 138); // Azul Institucional
+    private final Color COLOR_PRIMARY = new Color(30, 58, 138);
     private final Color COLOR_BORDER = new Color(200, 200, 200);
 
     public GenerarLicencia(String cedula) {
@@ -92,8 +92,6 @@ public class GenerarLicencia extends JFrame {
         estilizarBoton(btnRegresar, Color.WHITE, Color.DARK_GRAY); // Regresar
         btnRegresar.setBorder(new LineBorder(COLOR_BORDER, 1));
         btnRegresar.setPreferredSize(new Dimension(150, 45));
-
-        btnExportar.setEnabled(false);
     }
 
     private void estilizarInputReadonly(JTextField campo) {
@@ -184,6 +182,17 @@ public class GenerarLicencia extends JFrame {
     private void iniciarLogica() {
         btnRegresar.addActionListener(e -> dispose());
 
+        // --- VERIFICACIÓN DE ESTADO INICIAL ---
+        if ("LICENCIA_EMITIDA".equals(solicitante.getEstado())) {
+            // Si ya está emitida, deshabilitamos generar y habilitamos exportar
+            btnGenerar.setEnabled(false);
+            btnGenerar.setText("Licencia Emitida");
+            btnExportar.setEnabled(true);
+        } else {
+            // Si no está emitida, comportamiento normal
+            btnExportar.setEnabled(false);
+        }
+
         btnGenerar.addActionListener(e -> {
             int confirm = JOptionPane.showConfirmDialog(this,
                     "¿Confirmar emisión de licencia?\nEsta acción es irreversible.",
@@ -205,23 +214,19 @@ public class GenerarLicencia extends JFrame {
         // --- LÓGICA DE EXPORTACIÓN A DESCARGAS ---
         btnExportar.addActionListener(e -> {
             try {
-                // 1. Obtener ruta de descargas del usuario
                 String userHome = System.getProperty("user.home");
                 File downloadsFolder = new File(userHome, "Downloads");
 
-                // Fallback si no encuentra Downloads (ej: sistema en otro idioma que no sea inglés estándar, aunque Java suele mapearlo)
                 if (!downloadsFolder.exists()) {
                     downloadsFolder = new File(userHome, "Descargas");
                 }
                 if (!downloadsFolder.exists()) {
-                    downloadsFolder = new File(userHome); // Si falla todo, usa el home
+                    downloadsFolder = new File(userHome);
                 }
 
-                // 2. Definir nombre del archivo
                 String fileName = "Licencia_" + solicitante.getCedula() + ".pdf";
                 File targetFile = new File(downloadsFolder, fileName);
 
-                // 3. Generar PDF
                 boolean exito = PDFGenerator.generarLicencia(solicitante, targetFile.getAbsolutePath());
 
                 if (exito) {

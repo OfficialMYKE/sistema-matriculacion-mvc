@@ -129,7 +129,7 @@ public class PDFGenerator {
 
             topData.addCell(cInfo);
 
-            // B2. Recuadro Sangre
+            // B2. Recuadro Sangre (ACTUALIZADO)
             PdfPCell cSangre = new PdfPCell();
             cSangre.setBorder(Rectangle.BOX);
             cSangre.setBorderWidth(0.5f);
@@ -139,7 +139,11 @@ public class PDFGenerator {
             lblSangre.setAlignment(Element.ALIGN_CENTER);
             lblSangre.setFont(new Font(Font.FontFamily.HELVETICA, 6, Font.BOLD, BaseColor.GRAY));
 
-            Paragraph valSangre = new Paragraph("O+", FONT_DATA); // Valor simulado
+            // --- CAMBIO AQUI: Usamos el getter del solicitante ---
+            String txtSangre = solicitante.getTipoSangre() != null ? solicitante.getTipoSangre() : "-";
+            Paragraph valSangre = new Paragraph(txtSangre, FONT_DATA);
+            // -----------------------------------------------------
+
             valSangre.setAlignment(Element.ALIGN_CENTER);
             valSangre.setSpacingBefore(2);
 
@@ -168,12 +172,16 @@ public class PDFGenerator {
             fechasTbl.addCell(cFecha2);
             cellDatos.addElement(fechasTbl);
 
-            // D. Tipo Licencia y Donante
+            // D. Tipo Licencia y Donante (ACTUALIZADO)
             PdfPTable footerInfoTbl = new PdfPTable(2);
             footerInfoTbl.setWidthPercentage(100);
             footerInfoTbl.setSpacingBefore(8);
 
-            PdfPCell cDonante = new PdfPCell(new Phrase("DONANTE: SI", FONT_DATA_SMALL));
+            // --- CAMBIO AQUI: Lógica de Donante SI/NO ---
+            String textoDonante = solicitante.isEsDonante() ? "SI" : "NO";
+            PdfPCell cDonante = new PdfPCell(new Phrase("DONANTE: " + textoDonante, FONT_DATA_SMALL));
+            // --------------------------------------------
+
             cDonante.setBorder(Rectangle.NO_BORDER);
             cDonante.setVerticalAlignment(Element.ALIGN_BOTTOM);
 
@@ -195,8 +203,6 @@ public class PDFGenerator {
             // -----------------------------------------------------
             // 4. PIE DE PÁGINA (Código de Barras y Cédula)
             // -----------------------------------------------------
-            // Usamos posicionamiento absoluto para el footer para garantizar que no salte de página
-            // aunque el contenido de arriba crezca un poco.
 
             // Texto Cédula Izquierda
             ColumnText.showTextAligned(canvas, Element.ALIGN_LEFT,
@@ -239,7 +245,7 @@ public class PDFGenerator {
 
     private static void agregarCampoNumerado(PdfPCell cell, String label, String valor) {
         Paragraph p = new Paragraph();
-        p.setLeading(10); // Interlineado compacto
+        p.setLeading(10);
         p.add(new Chunk(label + " ", FONT_LABEL_NUM));
         p.add(new Chunk(valor, FONT_DATA));
         p.setSpacingAfter(2);

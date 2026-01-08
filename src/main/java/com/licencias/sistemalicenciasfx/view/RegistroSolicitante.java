@@ -35,9 +35,13 @@ public class RegistroSolicitante extends JFrame {
     private JTextField txtEmail;
     private JTextField txtCelular;
     private JTextField txtDireccion;
-    private JTextField txtFechaNacimiento; // NUEVO
+    private JTextField txtFechaNacimiento;
     private JComboBox<String> cmbTipo;
     private JTextField txtFecha;
+
+    // NUEVOS CONTROLES (Base de datos actualizada)
+    private JComboBox<String> cmbOrganos; // Mapea a es_donante
+    private JComboBox<String> cmbSangre;  // Mapea a tipo_sangre
 
     // Botones
     private JButton btnGuardar;
@@ -53,7 +57,7 @@ public class RegistroSolicitante extends JFrame {
     private final Color COLOR_BORDER_INPUT = new Color(200, 200, 200);
     private final Color COLOR_ACCENT = new Color(30, 58, 138);
     private final Color COLOR_DANGER = new Color(220, 53, 69);
-    
+
     // FORMATO DE FECHA
     private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
@@ -70,38 +74,60 @@ public class RegistroSolicitante extends JFrame {
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setExtendedState(JFrame.MAXIMIZED_BOTH);
 
+        cargarDatosCombos(); // Llenar opciones de sangre y donante
         personalizarUI();
         iniciarLogica();
     }
 
+    private void cargarDatosCombos() {
+        // Llenar Tipos de Sangre si están vacíos
+        if (cmbSangre.getItemCount() == 0) {
+            String[] tipos = {"O+", "O-", "A+", "A-", "B+", "B-", "AB+", "AB-"};
+            for (String t : tipos) cmbSangre.addItem(t);
+        }
+
+        // Llenar Donante de Organos (Si/No)
+        if (cmbOrganos.getItemCount() == 0) {
+            cmbOrganos.addItem("SI");
+            cmbOrganos.addItem("NO");
+        }
+    }
+
     private void personalizarUI() {
-        // INPUTS
+        // INPUTS DE TEXTO
         estilizarInput(txtCedula);
         estilizarInput(txtNombres);
         estilizarInput(txtApellidos);
         estilizarInput(txtEmail);
         estilizarInput(txtCelular);
         estilizarInput(txtDireccion);
-        
+
         estilizarInput(txtFechaNacimiento);
-        agregarPlaceholder(txtFechaNacimiento, "dd/MM/yyyy"); // Ayuda visual
+        agregarPlaceholder(txtFechaNacimiento, "dd/MM/yyyy");
 
         estilizarInput(txtFecha);
         txtFecha.setBackground(new Color(233, 236, 239)); // Readonly
 
-        cmbTipo.setBackground(COLOR_BG_INPUT);
-        cmbTipo.setBorder(new LineBorder(COLOR_BORDER_INPUT, 1));
-        cmbTipo.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        // ESTILO DE COMBOBOXES (Incluyendo los nuevos)
+        estilizarComboBox(cmbTipo);
+        estilizarComboBox(cmbSangre);
+        estilizarComboBox(cmbOrganos);
 
+        // FOTO
         lblFoto.setOpaque(true);
         lblFoto.setBorder(new LineBorder(COLOR_BORDER_INPUT, 1));
-
         pintarPlaceholderFoto();
 
         // BOTONES
         estilizarBoton(btnGuardar, COLOR_ACCENT, Color.WHITE);
         estilizarBoton(btnSubirFoto, COLOR_ACCENT, Color.WHITE);
         estilizarBoton(btnCancelar, COLOR_DANGER, Color.WHITE);
+    }
+
+    private void estilizarComboBox(JComboBox<String> combo) {
+        combo.setBackground(COLOR_BG_INPUT);
+        combo.setBorder(new LineBorder(COLOR_BORDER_INPUT, 1));
+        combo.setFont(new Font("Segoe UI", Font.PLAIN, 14));
     }
 
     private void estilizarInput(JTextField campo) {
@@ -132,11 +158,11 @@ public class RegistroSolicitante extends JFrame {
             }
         });
     }
-    
+
     private void agregarPlaceholder(JTextField campo, String placeholder) {
         campo.setText(placeholder);
         campo.setForeground(Color.GRAY);
-        
+
         campo.addFocusListener(new FocusAdapter() {
             @Override
             public void focusGained(FocusEvent e) {
@@ -231,17 +257,15 @@ public class RegistroSolicitante extends JFrame {
             LocalDate fechaNacimiento;
             try {
                 fechaNacimiento = LocalDate.parse(txtFechaNacimiento.getText(), formatter);
-                
-                // Calculamos edad
+
                 int edad = Period.between(fechaNacimiento, LocalDate.now()).getYears();
-                
                 if (edad < 17) {
-                    JOptionPane.showMessageDialog(this, 
-                        "NO SE PUEDE REGISTRAR:\nEl solicitante tiene " + edad + " años.\nLa edad mínima requerida es de 17 años.",
-                        "Edad Insuficiente", JOptionPane.ERROR_MESSAGE);
-                    return; // DETIENE EL PROCESO
+                    JOptionPane.showMessageDialog(this,
+                            "NO SE PUEDE REGISTRAR:\nEl solicitante tiene " + edad + " años.\nLa edad mínima requerida es de 17 años.",
+                            "Edad Insuficiente", JOptionPane.ERROR_MESSAGE);
+                    return;
                 }
-                
+
             } catch (DateTimeParseException ex) {
                 JOptionPane.showMessageDialog(this, "Formato de fecha inválido.\nUse el formato: dd/MM/yyyy (ej: 25/12/2000)", "Error de Fecha", JOptionPane.ERROR_MESSAGE);
                 return;
@@ -252,10 +276,13 @@ public class RegistroSolicitante extends JFrame {
             btnGuardar.setText("Guardando...");
             setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 
-            // Proceso en Segundo Plano (Thread)
-            // Necesitamos una variable final efectiva para el thread
-            final LocalDate fechaNacFinal = fechaNacimiento; 
-            
+            // Capturar variables para el Thread
+            final LocalDate fechaNacFinal = fechaNacimiento;
+            // Capturar nuevos campos
+            final String tipoSangre = (String) cmbSangre.getSelectedItem();
+            final String donanteSeleccion = (String) cmbOrganos.getSelectedItem();
+            final boolean esDonante = "SI".equalsIgnoreCase(donanteSeleccion);
+
             new Thread(() -> {
                 String fotoUrl = null;
 
@@ -264,17 +291,24 @@ public class RegistroSolicitante extends JFrame {
                     fotoUrl = supabaseService.subirImagen(archivoFotoSeleccionado, txtCedula.getText().trim());
                 }
 
-                // Guardar en Base de Datos (Con fecha nacimiento)
+                // Guardar en Base de Datos
+                // NOTA: Debes asegurarte que tu método en SupabaseService acepte estos argumentos en este orden
                 boolean exito = supabaseService.guardarSolicitante(
-                        txtCedula.getText().trim(),
-                        txtNombres.getText().trim(),
-                        txtApellidos.getText().trim(),
-                        txtEmail.getText().trim(),
-                        txtCelular.getText().trim(),
-                        txtDireccion.getText().trim(),
-                        (String) cmbTipo.getSelectedItem(),
-                        fechaNacFinal, // Pasamos la fecha
-                        fotoUrl
+                        txtCedula.getText().trim(),     // cedula
+                        txtNombres.getText().trim(),    // nombres
+                        txtApellidos.getText().trim(),  // apellidos
+                        txtEmail.getText().trim(),      // email
+                        txtCelular.getText().trim(),    // celular
+                        txtDireccion.getText().trim(),  // direccion
+                        (String) cmbTipo.getSelectedItem(), // tipoLicencia
+
+                        tipoSangre,                     // NUEVO: tipo_sangre
+                        esDonante,                      // NUEVO: es_donante (boolean)
+
+                        fechaNacFinal,                  // fechaNacimiento
+                        fotoUrl,                        // fotoUrl
+                        txtCedula.getText().trim(),     // password (usamos cédula)
+                        true                            // estado (default true/pendiente)
                 );
 
                 SwingUtilities.invokeLater(() -> {

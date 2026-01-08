@@ -30,7 +30,7 @@ public class DatabaseConfig {
 
         // CREDENCIALES
         this.usuario = "postgres.sbxndvnhvwdppcgomkda";
-        this.password = "ContraseñaSegura123"; // ¡Tu contraseña!
+        this.password = "ContraseñaSegura123";
 
         try {
             Class.forName(driver);

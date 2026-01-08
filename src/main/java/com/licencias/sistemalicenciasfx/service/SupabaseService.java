@@ -22,12 +22,17 @@ public class SupabaseService {
     private static final String SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNieG5kdm5odndkcHBjZ29ta2RhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njc3MTY2MzIsImV4cCI6MjA4MzI5MjYzMn0.W8P3KH6M5oTI-UwoG5xkCjRdefMo8iatxhbfxg9tOOo";
     private static final String BUCKET_NAME = "fotos_solicitantes";
 
-    // GUARDAR NUEVO SOLICITANTE
+    // 1. MÉTODO GUARDAR (13 parámetros para recibir todo desde la vista)
     public boolean guardarSolicitante(String cedula, String nombres, String apellidos,
                                       String email, String celular, String dir,
-                                      String tipo, LocalDate fechaNacimiento, String fotoUrl) {
+                                      String tipo,
+                                      String tipoSangre, boolean esDonante, // Nuevos
+                                      LocalDate fechaNacimiento, String fotoUrl,
+                                      String password, boolean estadoActivo) {
 
-        String sql = "INSERT INTO solicitantes (cedula, nombres, apellidos, email, celular, direccion, tipo_licencia, fecha_registro, fecha_nacimiento, foto_url, estado) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'PENDIENTE')";
+        String sql = "INSERT INTO solicitantes (cedula, nombres, apellidos, email, celular, direccion, " +
+                "tipo_licencia, tipo_sangre, es_donante, fecha_nacimiento, foto_url, estado, fecha_registro) " +
+                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())";
 
         try (Connection conn = DatabaseConfig.getInstance().obtenerConexion();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
@@ -39,9 +44,14 @@ public class SupabaseService {
             pstmt.setString(5, celular);
             pstmt.setString(6, dir);
             pstmt.setString(7, tipo);
-            pstmt.setObject(8, LocalDate.now());
-            pstmt.setDate(9, Date.valueOf(fechaNacimiento));
-            pstmt.setString(10, fotoUrl);
+
+            // Nuevos Campos
+            pstmt.setString(8, tipoSangre);
+            pstmt.setBoolean(9, esDonante);
+
+            pstmt.setDate(10, Date.valueOf(fechaNacimiento));
+            pstmt.setString(11, fotoUrl);
+            pstmt.setString(12, estadoActivo ? "PENDIENTE" : "INACTIVO");
 
             return pstmt.executeUpdate() > 0;
 
@@ -51,19 +61,19 @@ public class SupabaseService {
         }
     }
 
-    // OBTENER SIGUIENTE PENDIENTE (FASE DOCUMENTAL)
+    // OBTENER SIGUIENTE PENDIENTE
     public Solicitante obtenerSiguientePendiente() {
         String sql = "SELECT * FROM solicitantes WHERE estado = 'PENDIENTE' ORDER BY fecha_registro ASC LIMIT 1";
         return ejecutarConsultaUnica(sql);
     }
 
-    // OBTENER SIGUIENTE PARA EXAMEN (FASE TEÓRICO/PRÁCTICO)
+    // OBTENER SIGUIENTE PARA EXAMEN
     public Solicitante obtenerSiguienteParaExamen() {
         String sql = "SELECT * FROM solicitantes WHERE estado = 'EN_EXAMENES' ORDER BY fecha_registro ASC LIMIT 1";
         return ejecutarConsultaUnica(sql);
     }
 
-    // OBTENER TODOS LOS TRÁMITES (PARA GESTIÓN GLOBAL)
+    // OBTENER TODOS LOS TRÁMITES
     public List<Solicitante> obtenerTodosLosTramites() {
         List<Solicitante> lista = new ArrayList<>();
         String sql = "SELECT * FROM solicitantes ORDER BY fecha_registro DESC";
@@ -81,7 +91,7 @@ public class SupabaseService {
         return lista;
     }
 
-    // BUSCAR SOLICITANTES POR FILTRO
+    // BUSCAR POR FILTRO
     public List<Solicitante> buscarPendientes(String filtro) {
         List<Solicitante> lista = new ArrayList<>();
         String sql = "SELECT * FROM solicitantes WHERE estado = 'PENDIENTE' AND (cedula ILIKE ? OR apellidos ILIKE ? OR nombres ILIKE ?)";
@@ -119,7 +129,7 @@ public class SupabaseService {
         }
     }
 
-    // REGISTRAR NOTAS Y ESTADO FINAL
+    // REGISTRAR NOTAS
     public boolean registrarResultadosExamenes(String cedula, double notaTeo, double notaPrac, String estadoFinal) {
         String sql = "UPDATE solicitantes SET nota_teorica = ?, nota_practica = ?, estado = ?, observaciones = ? WHERE cedula = ?";
 
@@ -140,7 +150,7 @@ public class SupabaseService {
         }
     }
 
-    // SUBIR IMAGEN A STORAGE
+    // SUBIR IMAGEN
     public String subirImagen(File archivo, String cedula) {
         if (archivo == null) return null;
         try {
@@ -181,10 +191,17 @@ public class SupabaseService {
         return null;
     }
 
+    // *** AQUÍ ESTABA EL ERROR: AHORA LLAMA AL CONSTRUCTOR CON LOS 12 ARGUMENTOS ***
     private Solicitante mapResultSetToSolicitante(ResultSet rs) throws SQLException {
         Date sqlDate = rs.getDate("fecha_nacimiento");
         LocalDate fechaNac = (sqlDate != null) ? sqlDate.toLocalDate() : LocalDate.of(2000, 1, 1);
 
+        String tipoSangre = rs.getString("tipo_sangre");
+        if (tipoSangre == null) tipoSangre = "O+";
+
+        boolean esDonante = rs.getBoolean("es_donante");
+
+        // Orden: cedula, nombres, apellidos, email, celular, direccion, tipoLic, fechaNac, fotoUrl, estado, tipoSangre, esDonante
         return new Solicitante(
                 rs.getString("cedula"),
                 rs.getString("nombres"),
@@ -195,7 +212,9 @@ public class SupabaseService {
                 rs.getString("tipo_licencia"),
                 fechaNac,
                 rs.getString("foto_url"),
-                rs.getString("estado")
+                rs.getString("estado"),
+                tipoSangre,
+                esDonante
         );
     }
 }

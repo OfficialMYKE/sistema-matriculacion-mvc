@@ -49,7 +49,7 @@ public class UsuarioDAOImpl implements IUsuarioDAO {
         return usuario;
     }
 
-    // MÉTODOS OBLIGATORIOS DE IGenericDAO (Los ponemos vacíos para que no dé error)
+    // MÉTODOS OBLIGATORIOS DE IGenericDAO
 
     @Override
     public void create(Usuario entity) {

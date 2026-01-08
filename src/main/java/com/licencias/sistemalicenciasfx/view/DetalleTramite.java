@@ -128,8 +128,8 @@ public class DetalleTramite extends JFrame {
         });
 
         btn.addMouseListener(new MouseAdapter() {
-            public void mouseEntered(MouseEvent e) { btn.setBackground(bg.darker()); btn.setForeground(fg); }
-            public void mouseExited(MouseEvent e) { btn.setBackground(bg); btn.setForeground(fg); }
+            public void mouseEntered(MouseEvent e) { if (btn.isEnabled()) { btn.setBackground(bg.darker()); btn.setForeground(fg); }}
+            public void mouseExited(MouseEvent e) { if (btn.isEnabled()) { btn.setBackground(bg); btn.setForeground(fg); }}
         });
     }
 
@@ -156,7 +156,11 @@ public class DetalleTramite extends JFrame {
                     lblNombre.setText(s.getNombreCompleto());
                     lblCedula.setText("CI: " + s.getCedula());
                     lblEstado.setText("ESTADO: " + s.getEstado().toUpperCase());
-                    btnLicencia.setEnabled(s.getEstado().equals("APROBADO"));
+
+                    // MEJORA: Permitir ver licencia si está APROBADO o YA EMITIDA
+                    boolean habilitar = s.getEstado().equals("APROBADO") || s.getEstado().equals("LICENCIA_EMITIDA");
+                    btnLicencia.setEnabled(habilitar);
+
                     cargarImagen(s.getFotoUrl());
                 }
             });
@@ -199,8 +203,6 @@ public class DetalleTramite extends JFrame {
         // NAVEGACIÓN A GENERAR LICENCIA
         btnLicencia.addActionListener(e -> {
             new GenerarLicencia(cedulaActual).setVisible(true);
-            // Opcional: Cerrar esta ventana para limpiar el flujo
-            // this.dispose();
         });
     }
 }
