@@ -123,15 +123,19 @@ public class MenuPrincipal extends JFrame {
             panelMenu.add(Box.createVerticalStrut(15), gbc);
             gbc.gridy++; agregarSeparador("ADMINISTRACIÓN", gbc);
 
-            // --- AQUÍ ESTÁ EL CAMBIO PARA ABRIR LA VENTANA ---
             gbc.gridy++;
             agregarBoton("Gestión de Usuarios", IconType.GROUP, e -> {
                 navegar("Gestión de Usuarios");
-                new GestionUsuarios().setVisible(true); // <--- AHORA ABRE LA VENTANA
+                new GestionUsuarios().setVisible(true);
             }, gbc);
-            // --------------------------------------------------
 
-            gbc.gridy++; agregarBoton("Reportes y Estadísticas", IconType.CHART, e -> navegar("Reportes"), gbc);
+            // --- AQUÍ ESTÁ EL CAMBIO PARA REPORTES ---
+            gbc.gridy++;
+            agregarBoton("Reportes y Estadísticas", IconType.CHART, e -> {
+                navegar("Reportes y Estadísticas");
+                new Reportes().setVisible(true); // <--- Abre la nueva ventana
+            }, gbc);
+            // -----------------------------------------
         }
 
         // 3. FOOTER

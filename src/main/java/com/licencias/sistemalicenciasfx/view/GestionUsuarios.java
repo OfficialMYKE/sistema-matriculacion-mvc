@@ -153,7 +153,11 @@ public class GestionUsuarios extends JFrame {
 
         JPanel pnlRol = new JPanel(new BorderLayout()); pnlRol.setOpaque(false);
         pnlRol.add(crearLabel("Rol Asignado"), BorderLayout.NORTH);
-        cmbRol = new JComboBox<>(new String[]{"ADMIN", "DIGITADOR", "SUPERVISOR"});
+
+        // --- AQUÍ ESTÁ EL CAMBIO PRINCIPAL ---
+        // Se han limitado los roles a solo los dos requeridos:
+        // ADMIN (Administrador) y ANALISTA (Analista de Matriculación)
+        cmbRol = new JComboBox<>(new String[]{"ADMIN", "ANALISTA"});
         estilizarCombo(cmbRol);
         pnlRol.add(cmbRol, BorderLayout.CENTER);
 
@@ -201,22 +205,17 @@ public class GestionUsuarios extends JFrame {
 
         pnlForm.add(pnlBotones, gbc);
 
-        // --- BOTÓN REGRESAR (AHORA CON LAS MISMAS DIMENSIONES) ---
+        // --- BOTÓN REGRESAR ---
         gbc.gridy++;
-        gbc.insets = new Insets(10, 0, 0, 0); // Pequeña separación
+        gbc.insets = new Insets(10, 0, 0, 0);
 
         btnRegresar = new JButton("Regresar al Menú");
-
-        // 1. Establecer dimensiones idénticas a la fila superior (Altura 45px)
         btnRegresar.setPreferredSize(new Dimension(0, 45));
-
-        // 2. Estilo visual consistente (Blanco con Borde Gris)
         estilizarBoton(btnRegresar, Color.WHITE, Color.DARK_GRAY);
         btnRegresar.setBorder(new LineBorder(COLOR_BORDER, 1));
 
         btnRegresar.addActionListener(e -> this.dispose());
 
-        // 3. GridBagConstraints ya tiene fill=HORIZONTAL, así que llenará el ancho igual que los otros
         pnlForm.add(btnRegresar, gbc);
 
         // Espaciador final
