@@ -31,8 +31,8 @@ public class RegistroExamenes extends JFrame {
     // CONFIGURACIÓN ESTÉTICA
     private final Color COLOR_BG_INPUT = new Color(248, 249, 250);
     private final Color COLOR_BORDER_INPUT = new Color(200, 200, 200);
-    private final Color COLOR_ACCENT = new Color(30, 58, 138);
-    private final Color COLOR_DANGER = new Color(220, 53, 69);
+    private final Color COLOR_ACCENT = new Color(30, 58, 138); // Azul
+    private final Color COLOR_DANGER = new Color(220, 53, 69);  // Rojo
 
     public RegistroExamenes() {
         this.supabaseService = new SupabaseService();
@@ -40,6 +40,7 @@ public class RegistroExamenes extends JFrame {
         setTitle("Registro de Exámenes");
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setExtendedState(JFrame.MAXIMIZED_BOTH);
+
         personalizarUI();
         iniciarLogica();
     }
@@ -54,8 +55,12 @@ public class RegistroExamenes extends JFrame {
         lblFoto.setBorder(new LineBorder(COLOR_BORDER_INPUT, 1));
         pintarPlaceholderFoto();
 
-        // BOTONES ACCIÓN CON TEXTO REGULAR Y COLOR FORZADO
+        // --- BOTONES ---
+
+        // 1. Botón Guardar (Azul, Texto Blanco)
         estilizarBoton(btnGuardar, COLOR_ACCENT, Color.WHITE);
+
+        // 2. Botón Regresar (Blanco, Texto Gris Oscuro, Borde Gris) - IGUAL QUE GESTIÓN USUARIOS
         estilizarBoton(btnRegresar, Color.WHITE, Color.DARK_GRAY);
         btnRegresar.setBorder(new LineBorder(COLOR_BORDER_INPUT, 1));
     }
@@ -80,52 +85,79 @@ public class RegistroExamenes extends JFrame {
         });
     }
 
+    // --- MÉTODO DE ESTILO DE BOTÓN ROBUSTO (Evita duplicidad de texto) ---
     private void estilizarBoton(JButton btn, Color bg, Color fg) {
         btn.setBackground(bg);
         btn.setForeground(fg);
-        // TEXTO REGULAR (PLAIN)
-        btn.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        btn.setFont(new Font("Segoe UI", Font.PLAIN, 14)); // Regular
         btn.setFocusPainted(false);
-        btn.setBorderPainted(bg == Color.WHITE);
+        btn.setBorderPainted(false);
         btn.setContentAreaFilled(false);
         btn.setOpaque(false);
         btn.setCursor(new Cursor(Cursor.HAND_CURSOR));
+
+        // Guardamos propiedad para hover
+        btn.putClientProperty("bgColor", bg);
 
         btn.setUI(new BasicButtonUI() {
             @Override
             public void paint(Graphics g, JComponent c) {
                 Graphics2D g2 = (Graphics2D) g.create();
                 g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                g2.setColor(c.getBackground());
+
+                // Dibujar Fondo
+                if (c.isEnabled()) {
+                    Color colorActual = (Color) c.getClientProperty("bgColor");
+                    g2.setColor(colorActual != null ? colorActual : bg);
+                } else {
+                    g2.setColor(new Color(200, 200, 200));
+                }
                 g2.fillRoundRect(0, 0, c.getWidth(), c.getHeight(), 20, 20);
                 g2.dispose();
-                super.paint(g, c);
+
+                // DIBUJAR TEXTO MANUALMENTE (Para control total del color y nitidez)
+                paintTextManual(g, c, ((AbstractButton)c).getText());
             }
 
-            @Override
-            protected void paintText(Graphics g, AbstractButton b, Rectangle textRect, String text) {
+            private void paintTextManual(Graphics g, JComponent c, String text) {
                 Graphics2D g2 = (Graphics2D) g.create();
                 g2.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
-                g2.setColor(b.getForeground()); // Asegura el color blanco u otro pasado
-                g2.setFont(b.getFont());
 
+                // Usamos el color configurado en el componente (fg)
+                g2.setColor(c.getForeground());
+
+                g2.setFont(c.getFont());
                 FontMetrics fm = g2.getFontMetrics();
-                int x = textRect.x + (textRect.width - fm.stringWidth(text)) / 2;
-                int y = textRect.y + fm.getAscent();
+                int textWidth = fm.stringWidth(text);
+                int textHeight = fm.getAscent();
+
+                // Centrar texto
+                int x = (c.getWidth() - textWidth) / 2;
+                int y = (c.getHeight() + textHeight) / 2 - 2;
 
                 g2.drawString(text, x, y);
                 g2.dispose();
             }
         });
 
+        // Hover Effect
         btn.addMouseListener(new MouseAdapter() {
             public void mouseEntered(MouseEvent e) {
-                btn.setBackground(bg.darker());
-                btn.setForeground(fg);
+                if(btn.isEnabled()) {
+                    // Si es blanco, oscurecemos a gris claro, si es color, oscurecemos el color
+                    if (!bg.equals(Color.WHITE)) {
+                        btn.putClientProperty("bgColor", bg.darker());
+                    } else {
+                        btn.putClientProperty("bgColor", new Color(240, 240, 240));
+                    }
+                    btn.repaint();
+                }
             }
             public void mouseExited(MouseEvent e) {
-                btn.setBackground(bg);
-                btn.setForeground(fg);
+                if(btn.isEnabled()) {
+                    btn.putClientProperty("bgColor", bg);
+                    btn.repaint();
+                }
             }
         });
     }
@@ -162,11 +194,21 @@ public class RegistroExamenes extends JFrame {
                 String nuevoEstado = (teo >= 14 && prac >= 14) ? "APROBADO" : "REPROBADO";
                 String obs = "Nota Teoría: " + teo + " | Nota Práctica: " + prac;
 
+                // Bloquear botón mientras guarda
+                btnGuardar.setEnabled(false);
+                btnGuardar.setText("Guardando...");
+
                 new Thread(() -> {
                     if(supabaseService.actualizarEstadoSolicitante(solicitanteActual.getCedula(), nuevoEstado, obs)) {
                         SwingUtilities.invokeLater(() -> {
                             JOptionPane.showMessageDialog(this, "Resultados guardados. Estado: " + nuevoEstado);
                             cargarSiguientePostulante();
+                        });
+                    } else {
+                        SwingUtilities.invokeLater(() -> {
+                            JOptionPane.showMessageDialog(this, "Error al guardar notas.");
+                            btnGuardar.setEnabled(true);
+                            btnGuardar.setText("Guardar Notas");
                         });
                     }
                 }).start();
@@ -181,6 +223,7 @@ public class RegistroExamenes extends JFrame {
         new Thread(() -> {
             this.solicitanteActual = supabaseService.obtenerSiguienteParaExamen();
             SwingUtilities.invokeLater(() -> {
+                btnGuardar.setText("Guardar Notas");
                 if (solicitanteActual != null) {
                     lblNombre.setText(solicitanteActual.getNombreCompleto());
                     lblCedula.setText("CI: " + solicitanteActual.getCedula());

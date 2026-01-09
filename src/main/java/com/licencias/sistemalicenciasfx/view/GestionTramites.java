@@ -58,9 +58,11 @@ public class GestionTramites extends JFrame {
         cmbFiltroEstado.setBorder(new LineBorder(COLOR_BORDER_INPUT, 1));
         cmbFiltroEstado.setFont(new Font("Segoe UI", Font.PLAIN, 14));
 
+        // Botones de Acción (Azules con texto blanco)
         estilizarBoton(btnVerDetalle, COLOR_ACCENT, Color.WHITE);
         estilizarBoton(btnActualizar, COLOR_ACCENT, Color.WHITE);
 
+        // Botón Regresar (Blanco con texto Gris Oscuro y Borde) - ESTILO UNIFICADO
         estilizarBoton(btnRegresar, Color.WHITE, Color.DARK_GRAY);
         btnRegresar.setBorder(new LineBorder(COLOR_BORDER_INPUT, 1));
     }
@@ -85,43 +87,78 @@ public class GestionTramites extends JFrame {
         });
     }
 
+    // --- MÉTODO DE ESTILO ROBUSTO (IDÉNTICO A GESTION USUARIOS) ---
     private void estilizarBoton(JButton btn, Color bg, Color fg) {
         btn.setBackground(bg);
         btn.setForeground(fg);
         btn.setFont(new Font("Segoe UI", Font.PLAIN, 14));
         btn.setFocusPainted(false);
-        btn.setBorderPainted(bg.equals(Color.WHITE));
+        btn.setBorderPainted(false); // Borde lo manejamos manualmente o con UI
         btn.setContentAreaFilled(false);
         btn.setOpaque(false);
         btn.setCursor(new Cursor(Cursor.HAND_CURSOR));
+
+        // Guardar color base para efectos
+        btn.putClientProperty("bgColor", bg);
 
         btn.setUI(new BasicButtonUI() {
             @Override
             public void paint(Graphics g, JComponent c) {
                 Graphics2D g2 = (Graphics2D) g.create();
                 g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                g2.setColor(c.getBackground());
+
+                // Dibujar Fondo
+                if (c.isEnabled()) {
+                    Color colorActual = (Color) c.getClientProperty("bgColor");
+                    g2.setColor(colorActual != null ? colorActual : bg);
+                } else {
+                    g2.setColor(new Color(200, 200, 200));
+                }
                 g2.fillRoundRect(0, 0, c.getWidth(), c.getHeight(), 20, 20);
                 g2.dispose();
-                super.paint(g, c);
+
+                // PINTAR TEXTO MANUALMENTE
+                paintTextManual(g, c, ((AbstractButton)c).getText());
             }
-            @Override
-            protected void paintText(Graphics g, AbstractButton b, Rectangle textRect, String text) {
+
+            private void paintTextManual(Graphics g, JComponent c, String text) {
                 Graphics2D g2 = (Graphics2D) g.create();
                 g2.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
-                g2.setColor(b.getForeground());
-                g2.setFont(b.getFont());
+
+                // Usar el color del foreground (permite blanco o gris)
+                g2.setColor(c.getForeground());
+
+                g2.setFont(c.getFont());
                 FontMetrics fm = g2.getFontMetrics();
-                int x = textRect.x + (textRect.width - fm.stringWidth(text)) / 2;
-                int y = textRect.y + fm.getAscent();
+                int textWidth = fm.stringWidth(text);
+                int textHeight = fm.getAscent();
+
+                int x = (c.getWidth() - textWidth) / 2;
+                int y = (c.getHeight() + textHeight) / 2 - 2;
+
                 g2.drawString(text, x, y);
                 g2.dispose();
             }
         });
 
         btn.addMouseListener(new MouseAdapter() {
-            public void mouseEntered(MouseEvent e) { if(btn.isEnabled()){ btn.setBackground(bg.darker()); btn.setForeground(fg); }}
-            public void mouseExited(MouseEvent e) { if(btn.isEnabled()){ btn.setBackground(bg); btn.setForeground(fg); }}
+            public void mouseEntered(MouseEvent e) {
+                if(btn.isEnabled()){
+                    // Si el fondo NO es blanco, lo oscurecemos. Si es blanco, lo hacemos gris muy claro.
+                    if (!bg.equals(Color.WHITE)) {
+                        btn.putClientProperty("bgColor", bg.darker());
+                    } else {
+                        btn.putClientProperty("bgColor", new Color(240, 240, 240));
+                    }
+                    btn.repaint();
+                }
+            }
+            public void mouseExited(MouseEvent e) {
+                if(btn.isEnabled()){
+                    btn.putClientProperty("bgColor", bg);
+                    btn.repaint();
+                }
+            }
         });
     }
 

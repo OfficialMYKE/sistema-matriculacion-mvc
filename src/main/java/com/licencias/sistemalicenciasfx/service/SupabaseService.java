@@ -2,6 +2,7 @@ package com.licencias.sistemalicenciasfx.service;
 
 import com.licencias.sistemalicenciasfx.config.DatabaseConfig;
 import com.licencias.sistemalicenciasfx.model.entities.Solicitante;
+import com.licencias.sistemalicenciasfx.model.entities.Usuario; // <--- IMPORTANTE: Importar la entidad Usuario
 import com.licencias.sistemalicenciasfx.model.exceptions.BaseDatosException;
 
 import java.io.File;
@@ -22,11 +23,14 @@ public class SupabaseService {
     private static final String SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNieG5kdm5odndkcHBjZ29ta2RhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njc3MTY2MzIsImV4cCI6MjA4MzI5MjYzMn0.W8P3KH6M5oTI-UwoG5xkCjRdefMo8iatxhbfxg9tOOo";
     private static final String BUCKET_NAME = "fotos_solicitantes";
 
-    // 1. MÉTODO GUARDAR (13 parámetros para recibir todo desde la vista)
+    // ==========================================
+    //       SECCIÓN 1: GESTIÓN SOLICITANTES
+    // ==========================================
+
     public boolean guardarSolicitante(String cedula, String nombres, String apellidos,
                                       String email, String celular, String dir,
                                       String tipo,
-                                      String tipoSangre, boolean esDonante, // Nuevos
+                                      String tipoSangre, boolean esDonante,
                                       LocalDate fechaNacimiento, String fotoUrl,
                                       String password, boolean estadoActivo) {
 
@@ -44,11 +48,8 @@ public class SupabaseService {
             pstmt.setString(5, celular);
             pstmt.setString(6, dir);
             pstmt.setString(7, tipo);
-
-            // Nuevos Campos
             pstmt.setString(8, tipoSangre);
             pstmt.setBoolean(9, esDonante);
-
             pstmt.setDate(10, Date.valueOf(fechaNacimiento));
             pstmt.setString(11, fotoUrl);
             pstmt.setString(12, estadoActivo ? "PENDIENTE" : "INACTIVO");
@@ -61,19 +62,16 @@ public class SupabaseService {
         }
     }
 
-    // OBTENER SIGUIENTE PENDIENTE
     public Solicitante obtenerSiguientePendiente() {
         String sql = "SELECT * FROM solicitantes WHERE estado = 'PENDIENTE' ORDER BY fecha_registro ASC LIMIT 1";
         return ejecutarConsultaUnica(sql);
     }
 
-    // OBTENER SIGUIENTE PARA EXAMEN
     public Solicitante obtenerSiguienteParaExamen() {
         String sql = "SELECT * FROM solicitantes WHERE estado = 'EN_EXAMENES' ORDER BY fecha_registro ASC LIMIT 1";
         return ejecutarConsultaUnica(sql);
     }
 
-    // OBTENER TODOS LOS TRÁMITES
     public List<Solicitante> obtenerTodosLosTramites() {
         List<Solicitante> lista = new ArrayList<>();
         String sql = "SELECT * FROM solicitantes ORDER BY fecha_registro DESC";
@@ -91,7 +89,6 @@ public class SupabaseService {
         return lista;
     }
 
-    // BUSCAR POR FILTRO
     public List<Solicitante> buscarPendientes(String filtro) {
         List<Solicitante> lista = new ArrayList<>();
         String sql = "SELECT * FROM solicitantes WHERE estado = 'PENDIENTE' AND (cedula ILIKE ? OR apellidos ILIKE ? OR nombres ILIKE ?)";
@@ -115,7 +112,6 @@ public class SupabaseService {
         return lista;
     }
 
-    // ACTUALIZAR ESTADO
     public boolean actualizarEstadoSolicitante(String cedula, String nuevoEstado, String observaciones) {
         String sql = "UPDATE solicitantes SET estado = ?, observaciones = ? WHERE cedula = ?";
         try (Connection conn = DatabaseConfig.getInstance().obtenerConexion();
@@ -129,7 +125,6 @@ public class SupabaseService {
         }
     }
 
-    // REGISTRAR NOTAS
     public boolean registrarResultadosExamenes(String cedula, double notaTeo, double notaPrac, String estadoFinal) {
         String sql = "UPDATE solicitantes SET nota_teorica = ?, nota_practica = ?, estado = ?, observaciones = ? WHERE cedula = ?";
 
@@ -150,7 +145,105 @@ public class SupabaseService {
         }
     }
 
-    // SUBIR IMAGEN
+    // ==========================================
+    //       SECCIÓN 2: GESTIÓN USUARIOS (ADMIN)
+    // ==========================================
+
+    // 1. Guardar Usuario
+    public boolean guardarUsuario(String cedula, String nom, String ape, String user, String pass, String rol, String email) {
+        String sql = "INSERT INTO usuarios (cedula, nombres, apellidos, username, password, rol, email, estado) VALUES (?, ?, ?, ?, ?, ?, ?, 'ACTIVO')";
+        try (Connection conn = DatabaseConfig.getInstance().obtenerConexion();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, cedula);
+            pstmt.setString(2, nom);
+            pstmt.setString(3, ape);
+            pstmt.setString(4, user);
+            pstmt.setString(5, pass);
+            pstmt.setString(6, rol);
+            pstmt.setString(7, email);
+            return pstmt.executeUpdate() > 0;
+        } catch (Exception e) {
+            System.err.println("Error guardar usuario: " + e.getMessage());
+            return false;
+        }
+    }
+
+    // 2. Actualizar Usuario
+    public boolean actualizarUsuario(String cedula, String nom, String ape, String user, String pass, String rol, String email) {
+        // Solo actualizamos contraseña si el campo no está vacío
+        String sql = "UPDATE usuarios SET nombres=?, apellidos=?, username=?, rol=?, email=? " +
+                (pass.isEmpty() ? "" : ", password=?") + " WHERE cedula=?";
+
+        try (Connection conn = DatabaseConfig.getInstance().obtenerConexion();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            int i = 1;
+            pstmt.setString(i++, nom);
+            pstmt.setString(i++, ape);
+            pstmt.setString(i++, user);
+            pstmt.setString(i++, rol);
+            pstmt.setString(i++, email);
+
+            if (!pass.isEmpty()) {
+                pstmt.setString(i++, pass);
+            }
+            pstmt.setString(i++, cedula);
+
+            return pstmt.executeUpdate() > 0;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    // 3. Cambiar Estado
+    public boolean cambiarEstadoUsuario(String cedula, String nuevoEstado) {
+        String sql = "UPDATE usuarios SET estado=? WHERE cedula=?";
+        try (Connection conn = DatabaseConfig.getInstance().obtenerConexion();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, nuevoEstado);
+            pstmt.setString(2, cedula);
+            return pstmt.executeUpdate() > 0;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    // 4. Buscar Usuarios
+    public List<Usuario> buscarUsuarios(String filtro) {
+        List<Usuario> lista = new ArrayList<>();
+        String sql = "SELECT * FROM usuarios WHERE cedula ILIKE ? OR nombres ILIKE ? OR apellidos ILIKE ? ORDER BY id ASC";
+
+        try (Connection conn = DatabaseConfig.getInstance().obtenerConexion();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            String f = "%" + filtro + "%";
+            pstmt.setString(1, f);
+            pstmt.setString(2, f);
+            pstmt.setString(3, f);
+
+            ResultSet rs = pstmt.executeQuery();
+            while(rs.next()) {
+                lista.add(new Usuario(
+                        rs.getLong("id"),
+                        rs.getString("cedula"),
+                        rs.getString("nombres"),
+                        rs.getString("apellidos"),
+                        rs.getString("username"),
+                        rs.getString("password"), // Ojo: Idealmente no retornar password
+                        rs.getString("rol"),
+                        rs.getString("estado"),
+                        rs.getString("email")
+                ));
+            }
+        } catch (Exception e) { e.printStackTrace(); }
+        return lista;
+    }
+
+    // ==========================================
+    //       SECCIÓN 3: UTILIDADES / HELPERS
+    // ==========================================
+
     public String subirImagen(File archivo, String cedula) {
         if (archivo == null) return null;
         try {
@@ -175,8 +268,6 @@ public class SupabaseService {
         return null;
     }
 
-    // HELPERS PRIVADOS
-
     private Solicitante ejecutarConsultaUnica(String sql) {
         try (Connection conn = DatabaseConfig.getInstance().obtenerConexion();
              PreparedStatement pstmt = conn.prepareStatement(sql);
@@ -191,7 +282,6 @@ public class SupabaseService {
         return null;
     }
 
-    // *** AQUÍ ESTABA EL ERROR: AHORA LLAMA AL CONSTRUCTOR CON LOS 12 ARGUMENTOS ***
     private Solicitante mapResultSetToSolicitante(ResultSet rs) throws SQLException {
         Date sqlDate = rs.getDate("fecha_nacimiento");
         LocalDate fechaNac = (sqlDate != null) ? sqlDate.toLocalDate() : LocalDate.of(2000, 1, 1);
@@ -201,7 +291,6 @@ public class SupabaseService {
 
         boolean esDonante = rs.getBoolean("es_donante");
 
-        // Orden: cedula, nombres, apellidos, email, celular, direccion, tipoLic, fechaNac, fotoUrl, estado, tipoSangre, esDonante
         return new Solicitante(
                 rs.getString("cedula"),
                 rs.getString("nombres"),

@@ -24,6 +24,9 @@ public class DetalleTramite extends JFrame {
     private final SupabaseService service;
     private final String cedulaActual;
 
+    // BANDERA DE CONTROL (Para evitar ventana fantasma)
+    private boolean inicializacionExitosa = false;
+
     // COLORES
     private final Color COLOR_ACCENT = new Color(30, 58, 138); // Azul Fuerte
     private final Color COLOR_SUCCESS = new Color(40, 167, 69); // Verde
@@ -33,6 +36,16 @@ public class DetalleTramite extends JFrame {
     public DetalleTramite(String cedula) {
         this.service = new SupabaseService();
         this.cedulaActual = cedula;
+
+        // 1. VERIFICACIÓN INICIAL
+        if (!validarUsuarioExiste()) {
+            this.inicializacionExitosa = false;
+            this.dispose();
+            return; // Detenemos el constructor, pero el objeto sigue existiendo en memoria
+        }
+
+        // Si pasa la validación, marcamos como exitosa
+        this.inicializacionExitosa = true;
 
         setContentPane(panelPrincipal);
         setTitle("Detalle de Trámite - Gestión");
@@ -44,41 +57,66 @@ public class DetalleTramite extends JFrame {
         iniciarLogica();
     }
 
+    // --- SOLUCIÓN AL ERROR DE VENTANA VACÍA ---
+    @Override
+    public void setVisible(boolean b) {
+        // Si la inicialización falló (usuario no existe), bloqueamos que la ventana se muestre
+        if (b && !inicializacionExitosa) {
+            super.dispose(); // Aseguramos que se destruya
+            return; // No llamamos a super.setVisible(b)
+        }
+        super.setVisible(b);
+    }
+    // ------------------------------------------
+
+    private boolean validarUsuarioExiste() {
+        boolean existe = service.obtenerTodosLosTramites().stream()
+                .anyMatch(s -> s.getCedula().equals(cedulaActual));
+
+        if (!existe) {
+            JOptionPane.showMessageDialog(null,
+                    "⚠️ USUARIO INEXISTENTE\n\nNo se encontró ningún trámite asociado a la cédula: " + cedulaActual + "\nPor favor verifique e intente nuevamente.",
+                    "Error de Búsqueda",
+                    JOptionPane.ERROR_MESSAGE);
+            return false;
+        }
+        return true;
+    }
+
     private void personalizarUI() {
         estilizarInput(txtTeo);
         estilizarInput(txtPrac);
 
-        // Foto con borde suave
-        lblFoto.setOpaque(true);
-        lblFoto.setBorder(new LineBorder(COLOR_BORDER, 1));
-        pintarPlaceholderFoto();
-
-        // Checkboxes: Fuente más grande y fondo blanco
-        Font chkFont = new Font("Segoe UI", Font.PLAIN, 16);
-        for(JCheckBox chk : new JCheckBox[]{chkCert, chkPago, chkMultas}) {
-            chk.setBackground(Color.WHITE);
-            chk.setFont(chkFont);
-            chk.setFocusPainted(false);
+        if (lblFoto != null) {
+            lblFoto.setOpaque(true);
+            lblFoto.setBorder(new LineBorder(COLOR_BORDER, 1));
+            pintarPlaceholderFoto();
         }
 
-        // Botones: Grandes y estéticos
+        Font chkFont = new Font("Segoe UI", Font.PLAIN, 16);
+        for(JCheckBox chk : new JCheckBox[]{chkCert, chkPago, chkMultas}) {
+            if(chk != null) {
+                chk.setBackground(Color.WHITE);
+                chk.setFont(chkFont);
+                chk.setFocusPainted(false);
+            }
+        }
+
         estilizarBoton(btnSaveReq, COLOR_ACCENT, Color.WHITE);
         estilizarBoton(btnSaveEx, COLOR_ACCENT, Color.WHITE);
         estilizarBoton(btnLicencia, COLOR_SUCCESS, Color.WHITE);
 
-        // Botón Regresar: Borde gris, texto oscuro
+        // BOTÓN REGRESAR (Estilo Unificado)
         estilizarBoton(btnRegresar, Color.WHITE, Color.DARK_GRAY);
-        btnRegresar.setBorder(new LineBorder(COLOR_BORDER, 1));
+        if (btnRegresar != null) btnRegresar.setBorder(new LineBorder(COLOR_BORDER, 1));
     }
 
     private void estilizarInput(JTextField campo) {
+        if(campo == null) return;
         campo.setOpaque(true);
         campo.setBackground(COLOR_INPUT_BG);
-        campo.setFont(new Font("Segoe UI", Font.PLAIN, 16)); // Letra más grande dentro del input
-        campo.setBorder(new CompoundBorder(
-                new LineBorder(COLOR_BORDER, 1),
-                new EmptyBorder(5, 12, 5, 12)
-        ));
+        campo.setFont(new Font("Segoe UI", Font.PLAIN, 16));
+        campo.setBorder(new CompoundBorder(new LineBorder(COLOR_BORDER, 1), new EmptyBorder(5, 12, 5, 12)));
 
         campo.addFocusListener(new FocusAdapter() {
             public void focusGained(FocusEvent e) {
@@ -93,43 +131,67 @@ public class DetalleTramite extends JFrame {
     }
 
     private void estilizarBoton(JButton btn, Color bg, Color fg) {
+        if(btn == null) return;
         btn.setBackground(bg);
         btn.setForeground(fg);
-        btn.setFont(new Font("Segoe UI", Font.PLAIN, 15)); // Fuente legible
+        btn.setFont(new Font("Segoe UI", Font.PLAIN, 15));
         btn.setFocusPainted(false);
-        // Si el fondo es blanco, ponemos borde, si es color, quitamos borde
-        btn.setBorderPainted(bg.equals(Color.WHITE));
+        // Si tiene borde manual (como regresar), no pintamos el default
+        if (btn.getBorder() == null) btn.setBorderPainted(false);
+
         btn.setContentAreaFilled(false);
         btn.setOpaque(false);
         btn.setCursor(new Cursor(Cursor.HAND_CURSOR));
+
+        btn.putClientProperty("bgColor", bg);
 
         btn.setUI(new BasicButtonUI() {
             @Override
             public void paint(Graphics g, JComponent c) {
                 Graphics2D g2 = (Graphics2D) g.create();
                 g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                g2.setColor(c.getBackground());
-                g2.fillRoundRect(0, 0, c.getWidth(), c.getHeight(), 15, 15); // Bordes redondeados sutiles
+
+                if (c.isEnabled()) {
+                    Color colorActual = (Color) c.getClientProperty("bgColor");
+                    g2.setColor(colorActual != null ? colorActual : bg);
+                } else {
+                    g2.setColor(new Color(200, 200, 200));
+                }
+                g2.fillRoundRect(0, 0, c.getWidth(), c.getHeight(), 15, 15);
                 g2.dispose();
-                super.paint(g, c);
+
+                paintTextManual(g, c, ((AbstractButton)c).getText());
             }
-            @Override
-            protected void paintText(Graphics g, AbstractButton b, Rectangle textRect, String text) {
+
+            private void paintTextManual(Graphics g, JComponent c, String text) {
                 Graphics2D g2 = (Graphics2D) g.create();
                 g2.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
-                g2.setColor(b.getForeground());
-                g2.setFont(b.getFont());
+
+                g2.setColor(c.getForeground());
+
+                g2.setFont(c.getFont());
                 FontMetrics fm = g2.getFontMetrics();
-                int x = textRect.x + (textRect.width - fm.stringWidth(text)) / 2;
-                int y = textRect.y + fm.getAscent();
+                int x = (c.getWidth() - fm.stringWidth(text)) / 2;
+                int y = (c.getHeight() + fm.getAscent()) / 2 - 2;
                 g2.drawString(text, x, y);
                 g2.dispose();
             }
         });
 
         btn.addMouseListener(new MouseAdapter() {
-            public void mouseEntered(MouseEvent e) { if (btn.isEnabled()) { btn.setBackground(bg.darker()); btn.setForeground(fg); }}
-            public void mouseExited(MouseEvent e) { if (btn.isEnabled()) { btn.setBackground(bg); btn.setForeground(fg); }}
+            public void mouseEntered(MouseEvent e) {
+                if (btn.isEnabled()) {
+                    if (!bg.equals(Color.WHITE)) btn.putClientProperty("bgColor", bg.darker());
+                    else btn.putClientProperty("bgColor", new Color(240, 240, 240));
+                    btn.repaint();
+                }
+            }
+            public void mouseExited(MouseEvent e) {
+                if (btn.isEnabled()) {
+                    btn.putClientProperty("bgColor", bg);
+                    btn.repaint();
+                }
+            }
         });
     }
 
@@ -143,7 +205,7 @@ public class DetalleTramite extends JFrame {
         g2.fillOval(100, 100, 100, 100);
         g2.fillArc(50, 220, 200, 180, 0, 180);
         g2.dispose();
-        lblFoto.setIcon(new ImageIcon(img));
+        if(lblFoto != null) lblFoto.setIcon(new ImageIcon(img));
     }
 
     private void cargarDatos() {
@@ -153,13 +215,12 @@ public class DetalleTramite extends JFrame {
                     .findFirst().orElse(null);
             SwingUtilities.invokeLater(() -> {
                 if (s != null) {
-                    lblNombre.setText(s.getNombreCompleto());
-                    lblCedula.setText("CI: " + s.getCedula());
-                    lblEstado.setText("ESTADO: " + s.getEstado().toUpperCase());
+                    if(lblNombre != null) lblNombre.setText(s.getNombreCompleto());
+                    if(lblCedula != null) lblCedula.setText("CI: " + s.getCedula());
+                    if(lblEstado != null) lblEstado.setText("ESTADO: " + s.getEstado().toUpperCase());
 
-                    // MEJORA: Permitir ver licencia si está APROBADO o YA EMITIDA
                     boolean habilitar = s.getEstado().equals("APROBADO") || s.getEstado().equals("LICENCIA_EMITIDA");
-                    btnLicencia.setEnabled(habilitar);
+                    if(btnLicencia != null) btnLicencia.setEnabled(habilitar);
 
                     cargarImagen(s.getFotoUrl());
                 }
@@ -173,15 +234,15 @@ public class DetalleTramite extends JFrame {
             try {
                 BufferedImage img = ImageIO.read(new URL(url));
                 Image dimg = img.getScaledInstance(320, 420, Image.SCALE_SMOOTH);
-                SwingUtilities.invokeLater(() -> lblFoto.setIcon(new ImageIcon(dimg)));
+                SwingUtilities.invokeLater(() -> { if(lblFoto != null) lblFoto.setIcon(new ImageIcon(dimg)); });
             } catch (Exception e) { pintarPlaceholderFoto(); }
         }).start();
     }
 
     private void iniciarLogica() {
-        btnRegresar.addActionListener(e -> dispose());
+        if(btnRegresar != null) btnRegresar.addActionListener(e -> dispose());
 
-        btnSaveReq.addActionListener(e -> {
+        if(btnSaveReq != null) btnSaveReq.addActionListener(e -> {
             if (chkCert.isSelected() && chkPago.isSelected() && chkMultas.isSelected()) {
                 service.actualizarEstadoSolicitante(cedulaActual, "EN_EXAMENES", "Requisitos Validados");
                 JOptionPane.showMessageDialog(this, "Requisitos Guardados Correctamente.");
@@ -189,7 +250,7 @@ public class DetalleTramite extends JFrame {
             } else JOptionPane.showMessageDialog(this, "Debe validar todos los requisitos.");
         });
 
-        btnSaveEx.addActionListener(e -> {
+        if(btnSaveEx != null) btnSaveEx.addActionListener(e -> {
             try {
                 double t = Double.parseDouble(txtTeo.getText());
                 double p = Double.parseDouble(txtPrac.getText());
@@ -200,8 +261,7 @@ public class DetalleTramite extends JFrame {
             } catch (Exception ex) { JOptionPane.showMessageDialog(this, "Ingrese valores numéricos válidos (0-20)."); }
         });
 
-        // NAVEGACIÓN A GENERAR LICENCIA
-        btnLicencia.addActionListener(e -> {
+        if(btnLicencia != null) btnLicencia.addActionListener(e -> {
             new GenerarLicencia(cedulaActual).setVisible(true);
         });
     }

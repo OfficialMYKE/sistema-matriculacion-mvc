@@ -1,7 +1,6 @@
 package com.licencias.sistemalicenciasfx.view;
 
 import com.licencias.sistemalicenciasfx.model.entities.Usuario;
-import com.licencias.sistemalicenciasfx.model.enums.Rol;
 import com.licencias.sistemalicenciasfx.util.Sesion;
 
 import javax.swing.*;
@@ -15,7 +14,7 @@ public class MenuPrincipal extends JFrame {
 
     private JPanel panelPrincipal;
     private JPanel panelMenu;
-    private JPanel panelContenido; // Placeholder para contenido dinámico si se usara
+    private JPanel panelContenido; // Placeholder para contenido dinámico
     private JLabel lblTitulo;
 
     private final Usuario usuarioActual;
@@ -119,11 +118,19 @@ public class MenuPrincipal extends JFrame {
         }, gbc);
 
         // SECCIÓN ADMINISTRACIÓN
-        if (usuarioActual.getRol() == Rol.ADMINISTRADOR) {
+        if ("ADMIN".equals(usuarioActual.getRol())) {
             gbc.gridy++;
             panelMenu.add(Box.createVerticalStrut(15), gbc);
             gbc.gridy++; agregarSeparador("ADMINISTRACIÓN", gbc);
-            gbc.gridy++; agregarBoton("Gestión de Usuarios", IconType.GROUP, e -> navegar("Gestión de Usuarios"), gbc);
+
+            // --- AQUÍ ESTÁ EL CAMBIO PARA ABRIR LA VENTANA ---
+            gbc.gridy++;
+            agregarBoton("Gestión de Usuarios", IconType.GROUP, e -> {
+                navegar("Gestión de Usuarios");
+                new GestionUsuarios().setVisible(true); // <--- AHORA ABRE LA VENTANA
+            }, gbc);
+            // --------------------------------------------------
+
             gbc.gridy++; agregarBoton("Reportes y Estadísticas", IconType.CHART, e -> navegar("Reportes"), gbc);
         }
 

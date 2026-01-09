@@ -142,11 +142,25 @@ public class Login extends JFrame {
         });
     }
 
-    // --- AQUÍ ESTÁ EL CAMBIO IMPORTANTE ---
     private void logearse() {
         String usuario = txtUsuario.getText().trim();
         String password = new String(txtPassword.getPassword()).trim();
+
+        // 1. Obtener lo que el usuario ve en el Combo
         String rolSeleccionado = (String) cmbRol.getSelectedItem();
+
+        // -----------------------------------------------------------
+        // SOLUCIÓN CLAVE: TRADUCCIÓN DE ROL VISUAL A ROL DE BASE DE DATOS
+        // -----------------------------------------------------------
+        if (rolSeleccionado != null) {
+            if (rolSeleccionado.equalsIgnoreCase("ADMINISTRADOR")) {
+                rolSeleccionado = "ADMIN"; // Convertimos lo visual a lo técnico
+            }
+            else if (rolSeleccionado.equalsIgnoreCase("DIGITADOR")) {
+                rolSeleccionado = "DIGITADOR";
+            }
+        }
+        // -----------------------------------------------------------
 
         if (usuario.isEmpty() || password.isEmpty()) {
             JOptionPane.showMessageDialog(this, "Por favor ingrese usuario y contraseña.", "Campos Vacíos", JOptionPane.WARNING_MESSAGE);
@@ -157,21 +171,23 @@ public class Login extends JFrame {
             Usuario usuarioEncontrado = authService.autenticar(usuario, password);
 
             if (usuarioEncontrado != null) {
-                // Verificar Rol
-                if (usuarioEncontrado.getRol().name().equalsIgnoreCase(rolSeleccionado)) {
 
-                    // 1. Mensaje de éxito
+                // 2. Comparar el Rol de la BD con el Rol "Traducido"
+                // Usamos equalsIgnoreCase para mayor seguridad
+                if (usuarioEncontrado.getRol().equalsIgnoreCase(rolSeleccionado)) {
+
+                    // ¡LOGIN EXITOSO!
                     JOptionPane.showMessageDialog(this, "¡Bienvenido " + usuarioEncontrado.getUsername() + "!");
+                    this.dispose(); // Cerrar login
 
-                    // 2. Cerrar Login
-                    this.dispose();
-
-                    // 3. ABRIR EL MENÚ PRINCIPAL (Pasando el usuario logueado)
+                    // Abrir menú principal pasando el usuario
                     new MenuPrincipal(usuarioEncontrado).setVisible(true);
 
                 } else {
                     JOptionPane.showMessageDialog(this,
-                            "Credenciales correctas, pero el rol no coincide.\nUsted está registrado como: " + usuarioEncontrado.getRol(),
+                            "Credenciales correctas, pero el rol no coincide.\n" +
+                                    "Rol en el sistema: " + usuarioEncontrado.getRol() + "\n" +
+                                    "Rol seleccionado: " + rolSeleccionado,
                             "Acceso Denegado", JOptionPane.ERROR_MESSAGE);
                 }
             } else {
