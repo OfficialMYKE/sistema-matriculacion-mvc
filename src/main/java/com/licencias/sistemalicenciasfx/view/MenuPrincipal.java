@@ -8,13 +8,16 @@ import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.awt.geom.Path2D;
 
 public class MenuPrincipal extends JFrame {
 
+    // --- COMPONENTES DEL FORM (.form binding) ---
     private JPanel panelPrincipal;
     private JPanel panelMenu;
-    private JPanel panelContenido; // Placeholder para contenido dinámico
+    private JPanel panelContenido; // <--- HE RESTAURADO ESTA VARIABLE PARA CORREGIR EL ERROR
     private JLabel lblTitulo;
 
     private final Usuario usuarioActual;
@@ -30,12 +33,47 @@ public class MenuPrincipal extends JFrame {
     public MenuPrincipal(Usuario usuario) {
         this.usuarioActual = usuario;
 
+        // Inicialización de seguridad por si el .form falla o es nulo
+        if (panelPrincipal == null) {
+            panelPrincipal = new JPanel(new BorderLayout());
+            panelMenu = new JPanel();
+            panelContenido = new JPanel(); // Inicializamos panelContenido
+
+            panelMenu.setBackground(COLOR_AZUL_FONDO);
+            panelContenido.setBackground(Color.WHITE);
+
+            panelPrincipal.add(panelMenu, BorderLayout.WEST);
+            panelPrincipal.add(panelContenido, BorderLayout.CENTER);
+        }
+
         setContentPane(panelPrincipal);
         setTitle("Sistema de Gestión de Licencias - EPN");
         setExtendedState(JFrame.MAXIMIZED_BOTH);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
         construirMenuLateral();
+
+        // Configuramos panelContenido como un fondo simple ya que ahora abrimos ventanas
+        if(panelContenido != null) {
+            panelContenido.setBackground(Color.WHITE);
+        }
+    }
+
+    /**
+     * Gestiona la apertura de ventanas y oculta el menú
+     */
+    private void abrirVentana(JFrame ventana) {
+        this.setVisible(false); // Ocultar Menú
+        ventana.setVisible(true); // Mostrar nueva ventana
+
+        // Al cerrar la otra ventana, reaparece el menú
+        ventana.addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosed(WindowEvent e) {
+                setVisible(true);
+                toFront();
+            }
+        });
     }
 
     private void construirMenuLateral() {
@@ -43,6 +81,8 @@ public class MenuPrincipal extends JFrame {
         panelMenu.removeAll();
 
         panelMenu.setLayout(new GridBagLayout());
+        panelMenu.setBackground(COLOR_AZUL_FONDO); // Asegurar color
+
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.gridx = 0;
         gbc.fill = GridBagConstraints.HORIZONTAL;
@@ -76,25 +116,25 @@ public class MenuPrincipal extends JFrame {
         gbc.gridy++;
         agregarBoton("Registrar Solicitante", IconType.USER_ADD, e -> {
             navegar("Registrar Solicitante");
-            new RegistroSolicitante().setVisible(true);
+            abrirVentana(new RegistroSolicitante());
         }, gbc);
 
         gbc.gridy++;
         agregarBoton("Verificar Requisitos", IconType.CHECK, e -> {
             navegar("Verificar Requisitos");
-            new VerificacionRequisitos().setVisible(true);
+            abrirVentana(new VerificacionRequisitos());
         }, gbc);
 
         gbc.gridy++;
         agregarBoton("Registrar Exámenes", IconType.DOC_EDIT, e -> {
             navegar("Registrar Exámenes");
-            new RegistroExamenes().setVisible(true);
+            abrirVentana(new RegistroExamenes());
         }, gbc);
 
         gbc.gridy++;
         agregarBoton("Gestión de Trámites", IconType.FOLDER, e -> {
             navegar("Gestión de Trámites");
-            new GestionTramites().setVisible(true);
+            abrirVentana(new GestionTramites());
         }, gbc);
 
         // --- DETALLE DE TRÁMITE ---
@@ -103,17 +143,17 @@ public class MenuPrincipal extends JFrame {
             String cedula = JOptionPane.showInputDialog(this, "Ingrese la cédula del postulante:", "Buscar Trámite", JOptionPane.QUESTION_MESSAGE);
             if (cedula != null && !cedula.trim().isEmpty()) {
                 navegar("Detalle de Trámite - " + cedula);
-                new DetalleTramite(cedula).setVisible(true);
+                abrirVentana(new DetalleTramite(cedula));
             }
         }, gbc);
 
-        // --- GENERAR LICENCIA (NUEVO) ---
+        // --- GENERAR LICENCIA ---
         gbc.gridy++;
         agregarBoton("Generar Licencia", IconType.CARD, e -> {
             String cedula = JOptionPane.showInputDialog(this, "Ingrese la cédula para emitir licencia:", "Generar Licencia", JOptionPane.QUESTION_MESSAGE);
             if (cedula != null && !cedula.trim().isEmpty()) {
                 navegar("Generar Licencia - " + cedula);
-                new GenerarLicencia(cedula).setVisible(true);
+                abrirVentana(new GenerarLicencia(cedula));
             }
         }, gbc);
 
@@ -126,16 +166,14 @@ public class MenuPrincipal extends JFrame {
             gbc.gridy++;
             agregarBoton("Gestión de Usuarios", IconType.GROUP, e -> {
                 navegar("Gestión de Usuarios");
-                new GestionUsuarios().setVisible(true);
+                abrirVentana(new GestionUsuarios());
             }, gbc);
 
-            // --- AQUÍ ESTÁ EL CAMBIO PARA REPORTES ---
             gbc.gridy++;
             agregarBoton("Reportes y Estadísticas", IconType.CHART, e -> {
                 navegar("Reportes y Estadísticas");
-                new Reportes().setVisible(true); // <--- Abre la nueva ventana
+                abrirVentana(new Reportes());
             }, gbc);
-            // -----------------------------------------
         }
 
         // 3. FOOTER
@@ -256,6 +294,7 @@ public class MenuPrincipal extends JFrame {
             g2.setColor(color);
             g2.translate(x, y);
 
+            // Iconos vectoriales minimalistas
             switch (type) {
                 case USER_ADD:
                     g2.drawOval(4, 2, 6, 6);
