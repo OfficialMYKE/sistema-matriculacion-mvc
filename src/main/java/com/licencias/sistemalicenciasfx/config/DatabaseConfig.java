@@ -8,39 +8,39 @@ import java.sql.SQLException;
 
 public class DatabaseConfig {
 
+    // Variable estática para el patrón Singleton
     private static DatabaseConfig instancia;
+
+    // Variables para guardar los datos de conexión
     private final String url;
     private final String usuario;
     private final String password;
 
+    // Constructor privado para que no se pueda hacer new DatabaseConfig() desde fuera
     private DatabaseConfig() {
-        // 1. CONFIGURACIÓN CORRECTA PARA TU PROYECTO (sbxndvnhvwdppcgomkda)
-
-        // Host directo a tu base de datos
+        // Configuración del host de mi proyecto en Supabase
         String host = "db.sbxndvnhvwdppcgomkda.supabase.co";
         String puerto = "5432";
         String dbName = "postgres";
 
-        // URL JDBC Estándar
+        // Armamos la URL de conexión.
+        // Es importante el '?sslmode=require' porque Supabase lo pide por seguridad
         this.url = "jdbc:postgresql://" + host + ":" + puerto + "/" + dbName + "?sslmode=require";
 
-        // 2. CREDENCIALES
+        // Credenciales de la base de datos
+        this.usuario = "postgres"; // Usuario por defecto
+        this.password = "ContraseñaSegura123"; // Contraseña del panel de Supabase
 
-        // El usuario para conexión directa SIEMPRE es 'postgres'
-        this.usuario = "postgres";
-
-        // Tu contraseña confirmada
-        this.password = "ContraseñaSegura123";
-
-        // Cargar Driver
+        // Cargamos el driver de PostgreSQL
         try {
             Class.forName("org.postgresql.Driver");
         } catch (ClassNotFoundException e) {
-            System.err.println("Error: No se encontró el driver de PostgreSQL.");
+            System.err.println("Error: Falta la librería de PostgreSQL.");
             e.printStackTrace();
         }
     }
 
+    // Método para obtener la instancia única (Singleton)
     public static synchronized DatabaseConfig getInstance() {
         if (instancia == null) {
             instancia = new DatabaseConfig();
@@ -48,27 +48,32 @@ public class DatabaseConfig {
         return instancia;
     }
 
+    // Método para conectar a la base de datos
     public Connection obtenerConexion() throws BaseDatosException {
         try {
+            // Intentamos conectar con los datos configurados
             Connection conexion = DriverManager.getConnection(url, usuario, password);
-            // Si pasa de esta línea, es que conectó bien
             return conexion;
         } catch (SQLException e) {
-            // Manejo de errores comunes
+            // Verificamos si el error es por contraseña incorrecta (código 28P01)
             if (e.getSQLState() != null && e.getSQLState().equals("28P01")) {
-                throw new BaseDatosException("Error: La contraseña 'ContraseñaSegura123' NO es la correcta en Supabase. Necesitas resetearla en el panel web.", e);
+                throw new BaseDatosException("Error: La contraseña no coincide con la de Supabase.", e);
             }
-            throw new BaseDatosException("Error de conexión: " + e.getMessage(), e);
+            // Cualquier otro error de conexión
+            throw new BaseDatosException("No se pudo conectar: " + e.getMessage(), e);
         }
     }
 
+    // Método para cerrar la conexión y liberar recursos
     public void cerrarConexion(Connection conexion) {
         if (conexion != null) {
             try {
                 if (!conexion.isClosed()) {
                     conexion.close();
                 }
-            } catch (SQLException e) { /* Ignorar */ }
+            } catch (SQLException e) {
+                // No hacemos nada si falla al cerrar
+            }
         }
     }
 }

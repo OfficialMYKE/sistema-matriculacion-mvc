@@ -34,6 +34,10 @@ public class Login extends JFrame {
     // --- SERVICIO DE AUTENTICACIÓN ---
     private final AuthService authService;
 
+    // --- CONTROL DE INTENTOS ---
+    // Variable para contar cuántas veces se equivoca el usuario
+    private int intentosFallidos = 0;
+
     public Login() {
         // Inicializamos el servicio
         this.authService = new AuthService();
@@ -143,59 +147,91 @@ public class Login extends JFrame {
     }
 
     private void logearse() {
+        // --- 1. VERIFICACIÓN DE INTENTOS DE SEGURIDAD ---
+        // Si ya falló 3 veces, no le dejamos ni intentar
+        if (intentosFallidos >= 3) {
+            JOptionPane.showMessageDialog(this,
+                    "Ha excedido el número máximo de intentos.\nEl sistema se cerrará por seguridad.",
+                    "Acceso Bloqueado",
+                    JOptionPane.ERROR_MESSAGE);
+            System.exit(0); // Cerramos la aplicación
+            return;
+        }
+
         String usuario = txtUsuario.getText().trim();
         String password = new String(txtPassword.getPassword()).trim();
 
-        // 1. Obtener lo que el usuario ve en el Combo
+        // Obtenemos el rol visual (lo que ve el usuario)
         String rolSeleccionado = (String) cmbRol.getSelectedItem();
 
-        // -----------------------------------------------------------
-        // SOLUCIÓN CLAVE: TRADUCCIÓN DE ROL VISUAL A ROL DE BASE DE DATOS
-        // -----------------------------------------------------------
+        // --- TRADUCCIÓN DE ROL ---
+        // Convertimos "Administrador" (Visual) -> "ADMIN" (Base de Datos)
         if (rolSeleccionado != null) {
             if (rolSeleccionado.equalsIgnoreCase("ADMINISTRADOR")) {
-                rolSeleccionado = "ADMIN"; // Convertimos lo visual a lo técnico
+                rolSeleccionado = "ADMIN";
             }
-            else if (rolSeleccionado.equalsIgnoreCase("DIGITADOR")) {
-                rolSeleccionado = "DIGITADOR";
+            // Si tienes otro rol como Analista
+            else if (rolSeleccionado.equalsIgnoreCase("ANALISTA")) {
+                rolSeleccionado = "ANALISTA";
             }
         }
-        // -----------------------------------------------------------
 
+        // Validación de campos vacíos
         if (usuario.isEmpty() || password.isEmpty()) {
             JOptionPane.showMessageDialog(this, "Por favor ingrese usuario y contraseña.", "Campos Vacíos", JOptionPane.WARNING_MESSAGE);
             return;
         }
 
         try {
+            // Intentamos buscar al usuario en la BD
             Usuario usuarioEncontrado = authService.autenticar(usuario, password);
 
             if (usuarioEncontrado != null) {
 
-                // 2. Comparar el Rol de la BD con el Rol "Traducido"
-                // Usamos equalsIgnoreCase para mayor seguridad
+                // --- 2. VERIFICACIÓN DE ROL ---
+                // Si la contraseña es correcta, verificamos que haya elegido el rol correcto
                 if (usuarioEncontrado.getRol().equalsIgnoreCase(rolSeleccionado)) {
 
-                    // ¡LOGIN EXITOSO!
-                    JOptionPane.showMessageDialog(this, "¡Bienvenido " + usuarioEncontrado.getUsername() + "!");
-                    this.dispose(); // Cerrar login
+                    // ¡LOGIN EXITOSO! Reseteamos contadores por si acaso
+                    intentosFallidos = 0;
 
-                    // Abrir menú principal pasando el usuario
+                    JOptionPane.showMessageDialog(this, "¡Bienvenido " + usuarioEncontrado.getUsername() + "!");
+                    this.dispose(); // Cerramos login
+
+                    // Abrimos el menú principal
                     new MenuPrincipal(usuarioEncontrado).setVisible(true);
 
                 } else {
-                    JOptionPane.showMessageDialog(this,
-                            "Credenciales correctas, pero el rol no coincide.\n" +
-                                    "Rol en el sistema: " + usuarioEncontrado.getRol() + "\n" +
-                                    "Rol seleccionado: " + rolSeleccionado,
-                            "Acceso Denegado", JOptionPane.ERROR_MESSAGE);
+                    // Contraseña bien, pero Rol mal. Cuenta como fallo.
+                    registrarFallo("Credenciales válidas, pero rol incorrecto.");
                 }
             } else {
-                JOptionPane.showMessageDialog(this, "Usuario o contraseña incorrectos.", "Error de Acceso", JOptionPane.ERROR_MESSAGE);
+                // Usuario o contraseña mal. Cuenta como fallo.
+                registrarFallo("Usuario o contraseña incorrectos.");
             }
         } catch (Exception ex) {
             JOptionPane.showMessageDialog(this, "Error de conexión: " + ex.getMessage(), "Error Crítico", JOptionPane.ERROR_MESSAGE);
             ex.printStackTrace();
+        }
+    }
+
+    // Método auxiliar para manejar los errores y contar intentos
+    private void registrarFallo(String mensaje) {
+        intentosFallidos++; // Sumamos 1 al contador
+        int restantes = 3 - intentosFallidos;
+
+        String mensajeCompleto = mensaje + "\nIntentos restantes: " + restantes;
+
+        // Mostramos alerta clara al usuario
+        JOptionPane.showMessageDialog(this,
+                mensajeCompleto,
+                "Error de Acceso (" + intentosFallidos + "/3)",
+                JOptionPane.WARNING_MESSAGE);
+
+        // Si llegó al límite justo ahora, cerramos
+        if (intentosFallidos >= 3) {
+            JOptionPane.showMessageDialog(this, "Ha excedido el límite de intentos. Adiós.");
+            System.exit(0);
         }
     }
 
