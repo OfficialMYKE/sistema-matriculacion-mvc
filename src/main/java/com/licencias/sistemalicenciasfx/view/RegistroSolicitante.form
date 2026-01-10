@@ -352,11 +352,18 @@
         </properties>
         <border type="none"/>
         <children>
-          <component id="btnCancelar" class="javax.swing.JButton" binding="btnCancelar">
+          <component id="btnCancelar" class="javax.swing.JButton" binding="btnRegresar">
             <constraints/>
             <properties>
               <preferredSize width="140" height="45"/>
-              <text value="Cancelar"/>
+              <text value="Regresar"/>
+            </properties>
+          </component>
+          <component id="eb182" class="javax.swing.JButton" binding="btnLimpiar">
+            <constraints/>
+            <properties>
+              <preferredSize width="140" height="45"/>
+              <text value="Limpiar"/>
             </properties>
           </component>
           <component id="btnGuardar" class="javax.swing.JButton" binding="btnGuardar">

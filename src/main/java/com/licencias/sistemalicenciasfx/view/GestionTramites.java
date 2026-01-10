@@ -249,7 +249,7 @@ public class GestionTramites extends JFrame {
         btnVerDetalle.addActionListener(e -> {
             int row = tblTramites.getSelectedRow();
             if (row == -1) {
-                JOptionPane.showMessageDialog(this, "⚠️ Seleccione un trámite de la lista para ver detalles.");
+                JOptionPane.showMessageDialog(this, " Seleccione un trámite de la lista para ver detalles.");
                 return;
             }
 
