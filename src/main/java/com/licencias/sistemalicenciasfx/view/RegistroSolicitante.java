@@ -19,6 +19,20 @@ import java.time.LocalDate;
 import java.time.Period;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+import org.bytedeco.opencv.opencv_core.Mat;
+import java.awt.image.BufferedImage;
+import java.awt.image.DataBufferByte;
+import org.bytedeco.opencv.opencv_core.Mat;
+import org.bytedeco.opencv.opencv_videoio.VideoCapture;
+import com.github.sarxos.webcam.Webcam;
+
+import org.bytedeco.javacpp.Loader;
+import javax.swing.*;
+import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.awt.image.DataBufferByte;
+import java.io.File;
+import javax.imageio.ImageIO;
 
 public class RegistroSolicitante extends JFrame {
 
@@ -27,6 +41,10 @@ public class RegistroSolicitante extends JFrame {
     // Controles FOTO
     private JLabel lblFoto;
     private JButton btnSubirFoto;
+
+    // Tomar Foto
+    private JButton btnTomarFoto;
+
 
     // Controles DATOS
     private JTextField txtCedula;
@@ -72,6 +90,8 @@ public class RegistroSolicitante extends JFrame {
         cargarDatosCombos();
         personalizarUI();
         iniciarLogica();
+
+
     }
 
     private void cargarDatosCombos() {
@@ -249,6 +269,8 @@ public class RegistroSolicitante extends JFrame {
         if(btnRegresar != null) btnRegresar.addActionListener(e -> this.dispose());
         if(btnLimpiar != null) btnLimpiar.addActionListener(e -> limpiarFormulario());
         if(btnGuardar != null) btnGuardar.addActionListener(e -> guardarDatos());
+        if (btnTomarFoto != null) btnTomarFoto.addActionListener(e -> abrirVentanaCamara());
+
     }
 
     private void limpiarFormulario() {
@@ -324,6 +346,83 @@ public class RegistroSolicitante extends JFrame {
         }).start();
     }
 
+    private void abrirVentanaCamara() {
+        JFrame camFrame = new JFrame("Cámara");
+        camFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        camFrame.setSize(640, 480);
+        camFrame.setLayout(new BorderLayout());
+
+        // Webcam
+        Webcam webcam = Webcam.getDefault();
+        webcam.open();
+
+        // Panel para mostrar la imagen en vivo
+        JLabel lblPreview = new JLabel();
+        camFrame.add(lblPreview, BorderLayout.CENTER);
+
+        // Botones
+        JPanel panelBotones = new JPanel(new FlowLayout());
+        JButton btnCapturar = new JButton("Capturar");
+        JButton btnCancelar = new JButton("Cancelar");
+        JButton btnLimpiar = new JButton("Limpiar");
+        panelBotones.add(btnCapturar);
+        panelBotones.add(btnCancelar);
+        panelBotones.add(btnLimpiar);
+        camFrame.add(panelBotones, BorderLayout.SOUTH);
+
+        // Hilo para actualizar la vista previa en vivo
+        Thread previewThread = new Thread(() -> {
+            while (webcam.isOpen()) {
+                ImageIcon icon = new ImageIcon(webcam.getImage());
+                lblPreview.setIcon(icon);
+                try {
+                    Thread.sleep(100); // refresco cada 100ms
+                } catch (InterruptedException e) {
+                    break;
+                }
+            }
+        });
+        previewThread.start();
+
+        // Acción Capturar
+        btnCapturar.addActionListener(e -> {
+            try {
+                // Tomar imagen actual
+                java.awt.Image img = webcam.getImage();
+                lblFoto.setIcon(new ImageIcon(img.getScaledInstance(FOTO_ANCHO, FOTO_ALTO, Image.SCALE_SMOOTH)));
+
+                // Guardar temporalmente
+                File archivoTemp = new File("foto_temp.png");
+                javax.imageio.ImageIO.write((java.awt.image.RenderedImage) img, "png", archivoTemp);
+                archivoFotoSeleccionado = archivoTemp;
+
+                JOptionPane.showMessageDialog(camFrame, "Foto capturada correctamente.");
+                camFrame.dispose();
+                webcam.close();
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(camFrame, "Error al capturar la foto: " + ex.getMessage(),
+                        "Error", JOptionPane.ERROR_MESSAGE);
+            }
+        });
+
+        // Acción Cancelar
+        btnCancelar.addActionListener(e -> {
+            camFrame.dispose();
+            webcam.close();
+        });
+
+        // Acción Limpiar
+        btnLimpiar.addActionListener(e -> {
+            archivoFotoSeleccionado = null;
+            pintarPlaceholderFoto(); // vuelve al placeholder en tu interfaz
+            JOptionPane.showMessageDialog(camFrame, "Foto eliminada, puede intentar de nuevo.");
+        });
+
+        camFrame.setVisible(true);
+    }
+
+
+
     private void subirFoto() {
         JFileChooser fc = new JFileChooser();
         fc.setFileFilter(new FileNameExtensionFilter("Imágenes", "jpg", "png"));
@@ -334,5 +433,71 @@ public class RegistroSolicitante extends JFrame {
                 if(img != null) lblFoto.setIcon(new ImageIcon(img.getScaledInstance(FOTO_ANCHO, FOTO_ALTO, Image.SCALE_SMOOTH)));
             } catch(Exception ex) {}
         }
+    }
+
+
+
+
+
+    private void tomarFoto() {
+        Webcam webcam = Webcam.getDefault();
+
+        if (webcam != null) {
+            webcam.open();
+
+            // Capturar imagen
+            ImageIcon icon = new ImageIcon(webcam.getImage());
+
+            // Mostrar en el JLabel
+            lblFoto.setIcon(new ImageIcon(
+                    icon.getImage().getScaledInstance(FOTO_ANCHO, FOTO_ALTO, Image.SCALE_SMOOTH)
+            ));
+
+            try {
+                // Guardar temporalmente
+                File archivoTemp = new File("foto_temp.png");
+                javax.imageio.ImageIO.write(
+                        (java.awt.image.RenderedImage) webcam.getImage(),
+                        "png",
+                        archivoTemp
+                );
+                archivoFotoSeleccionado = archivoTemp;
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(this,
+                        "Error al guardar la foto: " + ex.getMessage(),
+                        "Error",
+                        JOptionPane.ERROR_MESSAGE);
+                ex.printStackTrace();
+            }
+
+            webcam.close();
+        } else {
+            JOptionPane.showMessageDialog(this,
+                    "No se detectó ninguna cámara conectada.",
+                    "Error",
+                    JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+
+
+    /**
+     * Convierte un objeto Mat de OpenCV a BufferedImage para usar en Swing.
+     */
+
+    public BufferedImage matToBufferedImage(Mat mat) {
+        // Determinar el tipo de imagen
+        int type = BufferedImage.TYPE_BYTE_GRAY;
+        if (mat.channels() > 1) {
+            type = BufferedImage.TYPE_3BYTE_BGR;
+        }
+
+        // Crear BufferedImage con las dimensiones del Mat
+        BufferedImage image = new BufferedImage(mat.cols(), mat.rows(), type);
+
+        // Copiar los datos del Mat al BufferedImage
+        mat.data().get(((DataBufferByte) image.getRaster().getDataBuffer()).getData());
+
+        return image;
     }
 }
