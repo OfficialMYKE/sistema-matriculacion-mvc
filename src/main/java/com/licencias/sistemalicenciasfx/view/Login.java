@@ -34,6 +34,10 @@ public class Login extends JFrame {
     // --- SERVICIO DE AUTENTICACIÓN ---
     private final AuthService authService;
 
+    // --- CONTROL DE INTENTOS ---
+    // Variable para contar cuántas veces se equivoca el usuario
+    private int intentosFallidos = 0;
+
     public Login() {
         // Inicializamos el servicio
         this.authService = new AuthService();
@@ -142,44 +146,92 @@ public class Login extends JFrame {
         });
     }
 
-    // --- AQUÍ ESTÁ EL CAMBIO IMPORTANTE ---
     private void logearse() {
+        // --- 1. VERIFICACIÓN DE INTENTOS DE SEGURIDAD ---
+        // Si ya falló 3 veces, no le dejamos ni intentar
+        if (intentosFallidos >= 3) {
+            JOptionPane.showMessageDialog(this,
+                    "Ha excedido el número máximo de intentos.\nEl sistema se cerrará por seguridad.",
+                    "Acceso Bloqueado",
+                    JOptionPane.ERROR_MESSAGE);
+            System.exit(0); // Cerramos la aplicación
+            return;
+        }
+
         String usuario = txtUsuario.getText().trim();
         String password = new String(txtPassword.getPassword()).trim();
+
+        // Obtenemos el rol visual (lo que ve el usuario)
         String rolSeleccionado = (String) cmbRol.getSelectedItem();
 
+        // --- TRADUCCIÓN DE ROL ---
+        // Convertimos "Administrador" (Visual) -> "ADMIN" (Base de Datos)
+        if (rolSeleccionado != null) {
+            if (rolSeleccionado.equalsIgnoreCase("ADMINISTRADOR")) {
+                rolSeleccionado = "ADMIN";
+            }
+            // Si tienes otro rol como Analista
+            else if (rolSeleccionado.equalsIgnoreCase("ANALISTA")) {
+                rolSeleccionado = "ANALISTA";
+            }
+        }
+
+        // Validación de campos vacíos
         if (usuario.isEmpty() || password.isEmpty()) {
             JOptionPane.showMessageDialog(this, "Por favor ingrese usuario y contraseña.", "Campos Vacíos", JOptionPane.WARNING_MESSAGE);
             return;
         }
 
         try {
+            // Intentamos buscar al usuario en la BD
             Usuario usuarioEncontrado = authService.autenticar(usuario, password);
 
             if (usuarioEncontrado != null) {
-                // Verificar Rol
-                if (usuarioEncontrado.getRol().name().equalsIgnoreCase(rolSeleccionado)) {
 
-                    // 1. Mensaje de éxito
+                // --- 2. VERIFICACIÓN DE ROL ---
+                // Si la contraseña es correcta, verificamos que haya elegido el rol correcto
+                if (usuarioEncontrado.getRol().equalsIgnoreCase(rolSeleccionado)) {
+
+                    // ¡LOGIN EXITOSO! Reseteamos contadores por si acaso
+                    intentosFallidos = 0;
+
                     JOptionPane.showMessageDialog(this, "¡Bienvenido " + usuarioEncontrado.getUsername() + "!");
+                    this.dispose(); // Cerramos login
 
-                    // 2. Cerrar Login
-                    this.dispose();
-
-                    // 3. ABRIR EL MENÚ PRINCIPAL (Pasando el usuario logueado)
+                    // Abrimos el menú principal
                     new MenuPrincipal(usuarioEncontrado).setVisible(true);
 
                 } else {
-                    JOptionPane.showMessageDialog(this,
-                            "Credenciales correctas, pero el rol no coincide.\nUsted está registrado como: " + usuarioEncontrado.getRol(),
-                            "Acceso Denegado", JOptionPane.ERROR_MESSAGE);
+                    // Contraseña bien, pero Rol mal. Cuenta como fallo.
+                    registrarFallo("Credenciales válidas, pero rol incorrecto.");
                 }
             } else {
-                JOptionPane.showMessageDialog(this, "Usuario o contraseña incorrectos.", "Error de Acceso", JOptionPane.ERROR_MESSAGE);
+                // Usuario o contraseña mal. Cuenta como fallo.
+                registrarFallo("Usuario o contraseña incorrectos.");
             }
         } catch (Exception ex) {
             JOptionPane.showMessageDialog(this, "Error de conexión: " + ex.getMessage(), "Error Crítico", JOptionPane.ERROR_MESSAGE);
             ex.printStackTrace();
+        }
+    }
+
+    // Método auxiliar para manejar los errores y contar intentos
+    private void registrarFallo(String mensaje) {
+        intentosFallidos++; // Sumamos 1 al contador
+        int restantes = 3 - intentosFallidos;
+
+        String mensajeCompleto = mensaje + "\nIntentos restantes: " + restantes;
+
+        // Mostramos alerta clara al usuario
+        JOptionPane.showMessageDialog(this,
+                mensajeCompleto,
+                "Error de Acceso (" + intentosFallidos + "/3)",
+                JOptionPane.WARNING_MESSAGE);
+
+        // Si llegó al límite justo ahora, cerramos
+        if (intentosFallidos >= 3) {
+            JOptionPane.showMessageDialog(this, "Ha excedido el límite de intentos. Adiós.");
+            System.exit(0);
         }
     }
 

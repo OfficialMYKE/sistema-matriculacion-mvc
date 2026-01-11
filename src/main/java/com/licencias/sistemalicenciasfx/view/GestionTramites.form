@@ -9,11 +9,16 @@
     </properties>
     <border type="none"/>
     <children>
+      
       <grid id="headerPanel" layout-manager="BorderLayout" hgap="0" vgap="0">
         <constraints border-constraint="North"/>
+        <properties>
+          <background color="-14796150"/>
+        </properties>
+        <border type="empty">
+          <size top="15" left="30" bottom="15" right="30"/>
+        </border>
         <margin top="0" left="0" bottom="0" right="0"/>
-        <properties><background color="-14796150"/></properties>
-        <border type="empty"><size top="15" left="30" bottom="15" right="30"/></border>
         <children>
           <component id="lblTitle" class="javax.swing.JLabel">
             <constraints border-constraint="West"/>
@@ -25,42 +30,98 @@
           </component>
         </children>
       </grid>
+
       <grid id="bodyPanel" layout-manager="GridLayoutManager" row-count="3" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="15">
         <margin top="25" left="40" bottom="25" right="40"/>
         <constraints border-constraint="Center"/>
-        <properties><background color="-1"/></properties>
+        <properties>
+          <background color="-1"/>
+        </properties>
         <border type="none"/>
         <children>
+          
           <grid id="filterPanel" layout-manager="FlowLayout" hgap="20" vgap="0" flow-align="0">
-            <constraints><grid row="0" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/></constraints>
             <margin top="0" left="0" bottom="0" right="0"/>
-            <properties><background color="-1"/></properties>
+            <constraints>
+              <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+            </constraints>
+            <properties>
+              <background color="-1"/>
+            </properties>
             <border type="none"/>
             <children>
-              <component id="lblFiltro" class="javax.swing.JLabel"><constraints/><properties><text value="Estado:"/><font name="Segoe UI" style="1"/></properties></component>
-              <component id="cmbFiltroEstado" class="javax.swing.JComboBox" binding="cmbFiltroEstado"><constraints/><properties><preferredSize width="180" height="38"/></properties></component>
-              <component id="txtBusqueda" class="javax.swing.JTextField" binding="txtBusqueda"><constraints/><properties><preferredSize width="280" height="38"/></properties></component>
-              <component id="btnActualizar" class="javax.swing.JButton" binding="btnActualizar"><constraints/><properties><text value="Actualizar"/><preferredSize width="120" height="38"/></properties></component>
+              <component id="lblFiltro" class="javax.swing.JLabel">
+                <constraints/>
+                <properties>
+                  <font name="Segoe UI" style="1"/>
+                  <text value="Estado:"/>
+                </properties>
+              </component>
+              <component id="cmbFiltroEstado" class="javax.swing.JComboBox" binding="cmbFiltroEstado">
+                <constraints/>
+                <properties>
+                  <preferredSize width="180" height="38"/>
+                </properties>
+              </component>
+              <component id="txtBusqueda" class="javax.swing.JTextField" binding="txtBusqueda">
+                <constraints/>
+                <properties>
+                  <preferredSize width="280" height="38"/>
+                </properties>
+              </component>
+              <component id="btnActualizar" class="javax.swing.JButton" binding="btnActualizar">
+                <constraints/>
+                <properties>
+                  <preferredSize width="120" height="38"/>
+                  <text value="Actualizar"/>
+                </properties>
+              </component>
             </children>
           </grid>
+
           <scrollpane id="scrollTable">
-            <constraints><grid row="1" column="0" row-span="1" col-span="1" vsize-policy="7" hsize-policy="7" anchor="0" fill="3" indent="0" use-parent-layout="false"/></constraints>
-            <properties><background color="-1"/></properties>
+            <constraints>
+              <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="7" hsize-policy="7" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+            </constraints>
+            <properties>
+              <background color="-1"/>
+            </properties>
             <border type="none"/>
             <children>
               <component id="tblTramites" class="javax.swing.JTable" binding="tblTramites">
-                <properties><font name="Segoe UI" size="14"/><rowHeight value="35"/><background color="-1"/></properties>
+                <properties>
+                  <background color="-1"/>
+                  <font name="Segoe UI" size="14"/>
+                  <rowHeight value="35"/>
+                </properties>
               </component>
             </children>
           </scrollpane>
+
           <grid id="btnPanel" layout-manager="FlowLayout" hgap="20" vgap="10" flow-align="2">
-            <constraints><grid row="2" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/></constraints>
             <margin top="10" left="0" bottom="0" right="0"/>
-            <properties><background color="-1"/></properties>
+            <constraints>
+              <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+            </constraints>
+            <properties>
+              <background color="-1"/>
+            </properties>
             <border type="none"/>
             <children>
-                <component id="btnRegresar" class="javax.swing.JButton" binding="btnRegresar"><constraints/><properties><text value="Regresar"/><preferredSize width="130" height="45"/></properties></component>
-                <component id="btnVerDetalle" class="javax.swing.JButton" binding="btnVerDetalle"><constraints/><properties><text value="Gestionar Trámite"/><preferredSize width="200" height="45"/></properties></component>
+              <component id="btnRegresar" class="javax.swing.JButton" binding="btnRegresar">
+                <constraints/>
+                <properties>
+                  <preferredSize width="130" height="45"/>
+                  <text value="Regresar"/>
+                </properties>
+              </component>
+              <component id="btnVerDetalle" class="javax.swing.JButton" binding="btnVerDetalle">
+                <constraints/>
+                <properties>
+                  <preferredSize width="200" height="45"/>
+                  <text value="Gestionar Trámite"/>
+                </properties>
+              </component>
             </children>
           </grid>
         </children>

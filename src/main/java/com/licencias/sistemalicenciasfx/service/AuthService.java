@@ -44,6 +44,6 @@ public class AuthService {
      */
     public void cerrarSesion() {
         Sesion.setUsuarioActual(null);
-        System.out.println("🔒 Sesión cerrada correctamente.");
+        System.out.println("Sesión cerrada correctamente.");
     }
 }
