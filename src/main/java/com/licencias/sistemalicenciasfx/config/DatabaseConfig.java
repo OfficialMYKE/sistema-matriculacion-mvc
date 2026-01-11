@@ -39,14 +39,14 @@ public class DatabaseConfig {
             e.printStackTrace();
         }
     }
-
+    // Método para obtener la instancia única (Singleton)
     public static synchronized DatabaseConfig getInstance() {
         if (instancia == null) {
             instancia = new DatabaseConfig();
         }
         return instancia;
     }
-
+    // Método para conectar a la base de datos
     public Connection obtenerConexion() throws BaseDatosException {
         try {
             Connection conexion = DriverManager.getConnection(url, usuario, password);
@@ -58,7 +58,7 @@ public class DatabaseConfig {
             );
         }
     }
-
+    // Método para cerrar la conexión y liberar recursos
     public void cerrarConexion(Connection conexion) {
         if (conexion != null) {
             try {
