@@ -45,16 +45,16 @@ public class GenerarLicencia extends JFrame {
     public GenerarLicencia(String cedula) {
         this.service = new SupabaseService();
 
-        // 1. BUSCAR USUARIO
+        // BUSCAR USUARIO
         this.solicitante = service.obtenerTodosLosTramites().stream()
                 .filter(s -> s.getCedula().equals(cedula))
                 .findFirst().orElse(null);
 
-        // 2. VALIDAR EXISTENCIA
+        // VALIDAR EXISTENCIA
         if (solicitante == null) {
             // Mostramos el mensaje
             JOptionPane.showMessageDialog(null,
-                    "⚠️ Error: No se encontró un solicitante con la cédula " + cedula + "\nVerifique que el trámite exista.",
+                    "Error: No se encontró un solicitante con la cédula " + cedula + "\nVerifique que el trámite exista.",
                     "Usuario No Encontrado",
                     JOptionPane.ERROR_MESSAGE);
 
@@ -66,24 +66,21 @@ public class GenerarLicencia extends JFrame {
             return;
         }
 
-        // Si llegamos aquí, todo está bien
         this.inicializacionExitosa = true;
 
-        // 3. CONFIGURACIÓN DE LA VENTANA
+        // CONFIGURACIÓN DE LA VENTANA
         setTitle("Emisión de Licencia Oficial");
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 
         calcularDatosLicencia();
-        construirInterfaz(); // Construimos la UI
-
-        // Maximizar SOLO si la UI se construyó
+        construirInterfaz();
         setExtendedState(JFrame.MAXIMIZED_BOTH);
 
         cargarDatosVisuales();
         iniciarLogica();
     }
 
-    // --- SOLUCIÓN AL ERROR DE VENTANA VACÍA ---
+
     @Override
     public void setVisible(boolean b) {
         // Si la inicialización falló (usuario no existe), bloqueamos que la ventana se muestre
@@ -93,7 +90,7 @@ public class GenerarLicencia extends JFrame {
         }
         super.setVisible(b);
     }
-    // ------------------------------------------
+
 
     private void calcularDatosLicencia() {
         this.fechaEmision = LocalDate.now();

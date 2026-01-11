@@ -11,14 +11,14 @@ import java.time.format.DateTimeFormatter;
 
 public class PDFGenerator {
 
-    // --- PALETA DE COLORES OFICIAL ---
+    // PALETA DE COLORES OFICIAL
     private static final BaseColor COLOR_AZUL_FONDO = new BaseColor(20, 45, 110); // Azul Institucional
     private static final BaseColor COLOR_ROJO = new BaseColor(200, 0, 0);
     private static final BaseColor COLOR_GRIS_CLARO = new BaseColor(252, 252, 252); // Casi blanco
     private static final BaseColor COLOR_TEXTO_MAIN = BaseColor.BLACK;
     private static final BaseColor COLOR_LABEL = new BaseColor(60, 60, 60);
 
-    // --- TIPOGRAFÍAS ---
+    // TIPOGRAFÍAS
     private static final Font FONT_HEADER = new Font(Font.FontFamily.HELVETICA, 16, Font.BOLD, BaseColor.WHITE);
     private static final Font FONT_HEADER_SUB = new Font(Font.FontFamily.HELVETICA, 7, Font.NORMAL, new BaseColor(220, 220, 220));
     private static final Font FONT_PAIS = new Font(Font.FontFamily.TIMES_ROMAN, 12, Font.BOLD, BaseColor.BLACK);
@@ -40,12 +40,12 @@ public class PDFGenerator {
 
             PdfContentByte canvas = writer.getDirectContent();
 
-            // 1. DIBUJAR FONDO ESTILO TARJETA
+            // DIBUJAR FONDO ESTILO TARJETA
             dibujarFondo(canvas, pageSize);
 
-            // -----------------------------------------------------
-            // 2. ENCABEZADO (Solo Español)
-            // -----------------------------------------------------
+
+            // ENCABEZADO (Solo Español)
+
             PdfPTable headerTable = new PdfPTable(1);
             headerTable.setWidthPercentage(100);
 
@@ -71,15 +71,15 @@ public class PDFGenerator {
             headerTable.addCell(cellHeader);
             document.add(headerTable);
 
-            // -----------------------------------------------------
-            // 3. CUERPO: FOTO (Izquierda) vs DATOS (Derecha)
-            // -----------------------------------------------------
+
+            // FOTO (Izquierda) vs DATOS (Derecha)
+
             PdfPTable bodyTable = new PdfPTable(2);
             bodyTable.setWidthPercentage(100);
             bodyTable.setWidths(new float[]{1.15f, 2.3f}); // Relación Foto / Datos
             bodyTable.setSpacingBefore(8);
 
-            // === COLUMNA IZQUIERDA: FOTO ===
+            // COLUMNA IZQUIERDA: FOTO
             PdfPCell cellFoto = new PdfPCell();
             cellFoto.setBorder(Rectangle.NO_BORDER);
             try {
@@ -103,23 +103,23 @@ public class PDFGenerator {
             }
             bodyTable.addCell(cellFoto);
 
-            // === COLUMNA DERECHA: DATOS ===
+            // COLUMNA DERECHA: DATOS
             PdfPCell cellDatos = new PdfPCell();
             cellDatos.setBorder(Rectangle.NO_BORDER);
             cellDatos.setPaddingLeft(10);
 
-            // A. Título República
+            // Título República
             Paragraph pRep = new Paragraph("REPÚBLICA DEL ECUADOR", FONT_PAIS);
             pRep.setAlignment(Element.ALIGN_CENTER);
             pRep.setSpacingAfter(8);
             cellDatos.addElement(pRep);
 
-            // B. Contenedor Datos + Tipo Sangre
+            // Contenedor Datos + Tipo Sangre
             PdfPTable topData = new PdfPTable(2);
             topData.setWidthPercentage(100);
             topData.setWidths(new float[]{3.2f, 1f});
 
-            // B1. Datos Personales
+            // Datos Personales
             PdfPCell cInfo = new PdfPCell();
             cInfo.setBorder(Rectangle.NO_BORDER);
 
@@ -129,7 +129,7 @@ public class PDFGenerator {
 
             topData.addCell(cInfo);
 
-            // B2. Recuadro Sangre (ACTUALIZADO)
+            // Recuadro Sangre
             PdfPCell cSangre = new PdfPCell();
             cSangre.setBorder(Rectangle.BOX);
             cSangre.setBorderWidth(0.5f);
@@ -139,10 +139,8 @@ public class PDFGenerator {
             lblSangre.setAlignment(Element.ALIGN_CENTER);
             lblSangre.setFont(new Font(Font.FontFamily.HELVETICA, 6, Font.BOLD, BaseColor.GRAY));
 
-            // --- CAMBIO AQUI: Usamos el getter del solicitante ---
             String txtSangre = solicitante.getTipoSangre() != null ? solicitante.getTipoSangre() : "-";
             Paragraph valSangre = new Paragraph(txtSangre, FONT_DATA);
-            // -----------------------------------------------------
 
             valSangre.setAlignment(Element.ALIGN_CENTER);
             valSangre.setSpacingBefore(2);
@@ -153,7 +151,7 @@ public class PDFGenerator {
 
             cellDatos.addElement(topData);
 
-            // C. Fechas (4a, 4b)
+            // Fechas (4a, 4b)
             DateTimeFormatter fmt = DateTimeFormatter.ofPattern("dd/MM/yyyy");
             LocalDate emision = LocalDate.now();
             LocalDate vence = emision.plusYears(5);
@@ -172,15 +170,15 @@ public class PDFGenerator {
             fechasTbl.addCell(cFecha2);
             cellDatos.addElement(fechasTbl);
 
-            // D. Tipo Licencia y Donante (ACTUALIZADO)
+            // Tipo Licencia y Donante
             PdfPTable footerInfoTbl = new PdfPTable(2);
             footerInfoTbl.setWidthPercentage(100);
             footerInfoTbl.setSpacingBefore(8);
 
-            // --- CAMBIO AQUI: Lógica de Donante SI/NO ---
+            // Lógica de Donante SI/NO
+
             String textoDonante = solicitante.isEsDonante() ? "SI" : "NO";
             PdfPCell cDonante = new PdfPCell(new Phrase("DONANTE: " + textoDonante, FONT_DATA_SMALL));
-            // --------------------------------------------
 
             cDonante.setBorder(Rectangle.NO_BORDER);
             cDonante.setVerticalAlignment(Element.ALIGN_BOTTOM);
@@ -200,9 +198,7 @@ public class PDFGenerator {
             bodyTable.addCell(cellDatos);
             document.add(bodyTable);
 
-            // -----------------------------------------------------
-            // 4. PIE DE PÁGINA (Código de Barras y Cédula)
-            // -----------------------------------------------------
+            // (Código de Barras y Cédula)
 
             // Texto Cédula Izquierda
             ColumnText.showTextAligned(canvas, Element.ALIGN_LEFT,

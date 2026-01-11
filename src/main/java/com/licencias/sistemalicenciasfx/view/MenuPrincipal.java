@@ -110,7 +110,7 @@ public class MenuPrincipal extends JFrame {
         gbc.gridy++;
         panelMenu.add(Box.createVerticalStrut(40), gbc);
 
-        // 2. BOTONES OPERACIONES
+        // BOTONES OPERACIONES
         gbc.gridy++; agregarSeparador("OPERACIONES", gbc);
 
         gbc.gridy++;
@@ -137,7 +137,7 @@ public class MenuPrincipal extends JFrame {
             abrirVentana(new GestionTramites());
         }, gbc);
 
-        // --- DETALLE DE TRÁMITE ---
+        // DETALLE DE TRÁMITE
         gbc.gridy++;
         agregarBoton("Detalle de Trámite", IconType.SEARCH, e -> {
             String cedula = JOptionPane.showInputDialog(this, "Ingrese la cédula del postulante:", "Buscar Trámite", JOptionPane.QUESTION_MESSAGE);
@@ -147,7 +147,7 @@ public class MenuPrincipal extends JFrame {
             }
         }, gbc);
 
-        // --- GENERAR LICENCIA ---
+        // GENERAR LICENCIA
         gbc.gridy++;
         agregarBoton("Generar Licencia", IconType.CARD, e -> {
             String cedula = JOptionPane.showInputDialog(this, "Ingrese la cédula para emitir licencia:", "Generar Licencia", JOptionPane.QUESTION_MESSAGE);

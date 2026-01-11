@@ -23,9 +23,7 @@ public class SupabaseService {
     private static final String SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNieG5kdm5odndkcHBjZ29ta2RhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njc3MTY2MzIsImV4cCI6MjA4MzI5MjYzMn0.W8P3KH6M5oTI-UwoG5xkCjRdefMo8iatxhbfxg9tOOo";
     private static final String BUCKET_NAME = "fotos_solicitantes";
 
-    // ==========================================
-    //       SECCIÓN 1: GESTIÓN SOLICITANTES
-    // ==========================================
+    // GESTIÓN SOLICITANTES
 
     public boolean guardarSolicitante(String cedula, String nombres, String apellidos,
                                       String email, String celular, String dir,
@@ -145,11 +143,9 @@ public class SupabaseService {
         }
     }
 
-    // ==========================================
-    //       SECCIÓN 2: GESTIÓN USUARIOS (ADMIN)
-    // ==========================================
+    // GESTIÓN USUARIOS (ADMIN)
 
-    // 1. Guardar Usuario
+    //Guardar Usuario
     public boolean guardarUsuario(String cedula, String nom, String ape, String user, String pass, String rol, String email) {
         String sql = "INSERT INTO usuarios (cedula, nombres, apellidos, username, password, rol, email, estado) VALUES (?, ?, ?, ?, ?, ?, ?, 'ACTIVO')";
         try (Connection conn = DatabaseConfig.getInstance().obtenerConexion();
@@ -168,7 +164,7 @@ public class SupabaseService {
         }
     }
 
-    // 2. Actualizar Usuario
+    // Actualizar Usuario
     public boolean actualizarUsuario(String cedula, String nom, String ape, String user, String pass, String rol, String email) {
         // Solo actualizamos contraseña si el campo no está vacío
         String sql = "UPDATE usuarios SET nombres=?, apellidos=?, username=?, rol=?, email=? " +
@@ -196,7 +192,7 @@ public class SupabaseService {
         }
     }
 
-    // 3. Cambiar Estado
+    // Cambiar Estado
     public boolean cambiarEstadoUsuario(String cedula, String nuevoEstado) {
         String sql = "UPDATE usuarios SET estado=? WHERE cedula=?";
         try (Connection conn = DatabaseConfig.getInstance().obtenerConexion();
@@ -209,7 +205,7 @@ public class SupabaseService {
         }
     }
 
-    // 4. Buscar Usuarios
+    // Buscar Usuarios
     public List<Usuario> buscarUsuarios(String filtro) {
         List<Usuario> lista = new ArrayList<>();
         String sql = "SELECT * FROM usuarios WHERE cedula ILIKE ? OR nombres ILIKE ? OR apellidos ILIKE ? ORDER BY id ASC";
@@ -240,9 +236,7 @@ public class SupabaseService {
         return lista;
     }
 
-    // ==========================================
-    //       SECCIÓN 3: UTILIDADES / HELPERS
-    // ==========================================
+    // UTILIDADES / HELPERS
 
     public String subirImagen(File archivo, String cedula) {
         if (archivo == null) return null;

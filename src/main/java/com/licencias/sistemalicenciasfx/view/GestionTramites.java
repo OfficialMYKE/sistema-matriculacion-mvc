@@ -274,14 +274,14 @@ public class GestionTramites extends JFrame {
 
     // FILTRO
     private void filtrar() {
-        // 1. Texto del buscador
+        // Texto del buscador
         String texto = txtBusqueda.getText().trim().toLowerCase();
 
-        // 2. Selección del combo
+        // Selección del combo
         String estadoSeleccionado = (String) cmbFiltroEstado.getSelectedItem();
         if (estadoSeleccionado == null) return;
 
-        // 3. Crear el Filtro
+        // Crear el Filtro
         RowFilter<DefaultTableModel, Object> rf = new RowFilter<DefaultTableModel, Object>() {
             @Override
             public boolean include(Entry<? extends DefaultTableModel, ? extends Object> entry) {

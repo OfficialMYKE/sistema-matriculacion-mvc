@@ -23,28 +23,23 @@ public class DetalleTramite extends JFrame {
 
     private final SupabaseService service;
     private final String cedulaActual;
-
-    // BANDERA DE CONTROL (Para evitar ventana fantasma)
     private boolean inicializacionExitosa = false;
 
     // COLORES
     private final Color COLOR_ACCENT = new Color(30, 58, 138); // Azul Fuerte
     private final Color COLOR_SUCCESS = new Color(40, 167, 69); // Verde
     private final Color COLOR_INPUT_BG = new Color(250, 250, 250); // Casi blanco
-    private final Color COLOR_BORDER = new Color(200, 200, 200);
+    private final Color COLOR_BORDER = new Color(200, 200, 200); // Gris para bordes
 
     public DetalleTramite(String cedula) {
         this.service = new SupabaseService();
         this.cedulaActual = cedula;
 
-        // 1. VERIFICACIÓN INICIAL
         if (!validarUsuarioExiste()) {
             this.inicializacionExitosa = false;
             this.dispose();
-            return; // Detenemos el constructor, pero el objeto sigue existiendo en memoria
+            return;
         }
-
-        // Si pasa la validación, marcamos como exitosa
         this.inicializacionExitosa = true;
 
         setContentPane(panelPrincipal);
@@ -57,27 +52,21 @@ public class DetalleTramite extends JFrame {
         iniciarLogica();
     }
 
-    // --- SOLUCIÓN AL ERROR DE VENTANA VACÍA ---
     @Override
     public void setVisible(boolean b) {
-        // Si la inicialización falló (usuario no existe), bloqueamos que la ventana se muestre
         if (b && !inicializacionExitosa) {
-            super.dispose(); // Aseguramos que se destruya
-            return; // No llamamos a super.setVisible(b)
+            super.dispose();
+            return;
         }
         super.setVisible(b);
     }
-    // ------------------------------------------
 
     private boolean validarUsuarioExiste() {
         boolean existe = service.obtenerTodosLosTramites().stream()
                 .anyMatch(s -> s.getCedula().equals(cedulaActual));
 
         if (!existe) {
-            JOptionPane.showMessageDialog(null,
-                    "⚠️ USUARIO INEXISTENTE\n\nNo se encontró ningún trámite asociado a la cédula: " + cedulaActual + "\nPor favor verifique e intente nuevamente.",
-                    "Error de Búsqueda",
-                    JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(null, "⚠️ No se encontró ningún trámite con la cédula: " + cedulaActual, "Error", JOptionPane.ERROR_MESSAGE);
             return false;
         }
         return true;
@@ -102,13 +91,14 @@ public class DetalleTramite extends JFrame {
             }
         }
 
+        // Estilizamos los botones
         estilizarBoton(btnSaveReq, COLOR_ACCENT, Color.WHITE);
         estilizarBoton(btnSaveEx, COLOR_ACCENT, Color.WHITE);
         estilizarBoton(btnLicencia, COLOR_SUCCESS, Color.WHITE);
 
-        // BOTÓN REGRESAR (Estilo Unificado)
+        // BOTÓN REGRESAR (Blanco con texto gris)
+        // Ya no ponemos .setBorder aquí, el borde se dibuja en el estilizarBoton
         estilizarBoton(btnRegresar, Color.WHITE, Color.DARK_GRAY);
-        if (btnRegresar != null) btnRegresar.setBorder(new LineBorder(COLOR_BORDER, 1));
     }
 
     private void estilizarInput(JTextField campo) {
@@ -117,7 +107,6 @@ public class DetalleTramite extends JFrame {
         campo.setBackground(COLOR_INPUT_BG);
         campo.setFont(new Font("Segoe UI", Font.PLAIN, 16));
         campo.setBorder(new CompoundBorder(new LineBorder(COLOR_BORDER, 1), new EmptyBorder(5, 12, 5, 12)));
-
         campo.addFocusListener(new FocusAdapter() {
             public void focusGained(FocusEvent e) {
                 campo.setBackground(Color.WHITE);
@@ -130,15 +119,16 @@ public class DetalleTramite extends JFrame {
         });
     }
 
+    // --- MÉTODO DE ESTILO CORREGIDO PARA ELIMINAR EL CUADRO ---
     private void estilizarBoton(JButton btn, Color bg, Color fg) {
         if(btn == null) return;
         btn.setBackground(bg);
         btn.setForeground(fg);
-        btn.setFont(new Font("Segoe UI", Font.PLAIN, 15));
-        btn.setFocusPainted(false);
-        // Si tiene borde manual (como regresar), no pintamos el default
-        if (btn.getBorder() == null) btn.setBorderPainted(false);
+        btn.setFont(new Font("Segoe UI", Font.PLAIN, 14));
 
+        btn.setFocusPainted(false);
+        // IMPORTANTE: Quitamos el borde por defecto para que no salga el cuadro
+        btn.setBorderPainted(false);
         btn.setContentAreaFilled(false);
         btn.setOpaque(false);
         btn.setCursor(new Cursor(Cursor.HAND_CURSOR));
@@ -151,24 +141,35 @@ public class DetalleTramite extends JFrame {
                 Graphics2D g2 = (Graphics2D) g.create();
                 g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
+                // 1. Determinar color de fondo (normal o hover)
                 if (c.isEnabled()) {
                     Color colorActual = (Color) c.getClientProperty("bgColor");
                     g2.setColor(colorActual != null ? colorActual : bg);
                 } else {
                     g2.setColor(new Color(200, 200, 200));
                 }
-                g2.fillRoundRect(0, 0, c.getWidth(), c.getHeight(), 15, 15);
+
+                // 2. Dibujar FONDO REDONDEADO
+                g2.fillRoundRect(0, 0, c.getWidth(), c.getHeight(), 20, 20);
+
+                // 3. LOGICA ESPECIAL PARA BOTÓN REGRESAR (Si es blanco)
+                // En lugar de usar setBorder (que es cuadrado), dibujamos la línea redonda aquí
+                if (bg.equals(Color.WHITE)) {
+                    g2.setColor(COLOR_BORDER); // Color del borde gris
+                    g2.setStroke(new BasicStroke(1)); // Grosor de línea
+                    g2.drawRoundRect(0, 0, c.getWidth() - 1, c.getHeight() - 1, 20, 20);
+                }
+
                 g2.dispose();
 
+                // 4. Dibujar Texto (Sin llamar a super.paint para evitar artefactos cuadrados)
                 paintTextManual(g, c, ((AbstractButton)c).getText());
             }
 
             private void paintTextManual(Graphics g, JComponent c, String text) {
                 Graphics2D g2 = (Graphics2D) g.create();
                 g2.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
-
                 g2.setColor(c.getForeground());
-
                 g2.setFont(c.getFont());
                 FontMetrics fm = g2.getFontMetrics();
                 int x = (c.getWidth() - fm.stringWidth(text)) / 2;
@@ -182,7 +183,7 @@ public class DetalleTramite extends JFrame {
             public void mouseEntered(MouseEvent e) {
                 if (btn.isEnabled()) {
                     if (!bg.equals(Color.WHITE)) btn.putClientProperty("bgColor", bg.darker());
-                    else btn.putClientProperty("bgColor", new Color(240, 240, 240));
+                    else btn.putClientProperty("bgColor", new Color(240, 240, 240)); // Gris muy suave hover
                     btn.repaint();
                 }
             }

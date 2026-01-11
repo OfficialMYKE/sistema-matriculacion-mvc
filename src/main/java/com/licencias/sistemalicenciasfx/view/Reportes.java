@@ -22,7 +22,7 @@ import java.util.stream.Collectors;
 
 public class Reportes extends JFrame {
 
-    // --- COLORES CORPORATIVOS ---
+    // COLORES CORPORATIVOS
     private final Color COLOR_HEADER = new Color(30, 58, 138); // Azul EPN
     private final Color COLOR_BG_PANEL = Color.WHITE;
     private final Color COLOR_BG_INPUT = new Color(248, 249, 250);
@@ -35,7 +35,7 @@ public class Reportes extends JFrame {
     private final Color COLOR_BTN_DANGER = new Color(220, 53, 69);  // Rojo
     private final Color COLOR_BTN_GRAY = new Color(108, 117, 125);  // Gris
 
-    // --- COMPONENTES UI ---
+    // COMPONENTES UI
     private JPanel panelPrincipal;
 
     // Filtros
@@ -91,7 +91,7 @@ public class Reportes extends JFrame {
         pnlContenido.setBackground(new Color(245, 247, 250));
         pnlContenido.setBorder(new EmptyBorder(20, 20, 20, 20));
 
-        // A. Panel Superior (Filtros + KPIs)
+        // Panel Superior (Filtros + KPIs)
         JPanel pnlTop = new JPanel(new BorderLayout(0, 15));
         pnlTop.setOpaque(false);
         pnlTop.add(construirPanelFiltros(), BorderLayout.NORTH);
@@ -99,12 +99,12 @@ public class Reportes extends JFrame {
 
         pnlContenido.add(pnlTop, BorderLayout.NORTH);
 
-        // B. Tabla
+        // Tabla
         pnlContenido.add(construirPanelTabla(), BorderLayout.CENTER);
 
         panelPrincipal.add(pnlContenido, BorderLayout.CENTER);
 
-        // 3. FOOTER
+        // FOOTER
         panelPrincipal.add(construirPanelFooter(), BorderLayout.SOUTH);
     }
 
@@ -233,14 +233,14 @@ public class Reportes extends JFrame {
         pnl.setBackground(Color.WHITE);
         pnl.setBorder(new MatteBorder(1, 0, 0, 0, COLOR_BORDER));
 
-        // --- BOTÓN REGRESAR (ESTILO IDÉNTICO A GESTIONUSUARIOS) ---
+        // BOTÓN REGRESAR (ESTILO IDÉNTICO A GESTIONUSUARIOS)
         btnRegresar = new JButton("Regresar al Menú");
 
-        // 1. Dimensión: Altura 45px (Igual que en GestionUsuarios)
+        // Dimensión: Altura 45px (Igual que en GestionUsuarios)
         // Ancho 180px para que se vea bien en el footer
         btnRegresar.setPreferredSize(new Dimension(180, 45));
 
-        // 2. Colores y Borde: Fondo Blanco, Texto DarkGray, Borde Gris
+        // Colores y Borde: Fondo Blanco, Texto DarkGray, Borde Gris
         estilizarBoton(btnRegresar, Color.WHITE, Color.DARK_GRAY);
         btnRegresar.setBorder(new LineBorder(COLOR_BORDER, 1));
 
@@ -260,7 +260,7 @@ public class Reportes extends JFrame {
         return pnl;
     }
 
-    // --- LÓGICA ---
+    // LÓGICA
     private void cargarDatos() {
         new Thread(() -> {
             try {
@@ -388,7 +388,7 @@ public class Reportes extends JFrame {
         cmp.setFont(new Font("Segoe UI", Font.PLAIN, 14));
     }
 
-    // --- ESTILO DE BOTÓN EXACTO DE GESTION USUARIOS ---
+    // ESTILO DE BOTÓN EXACTO DE GESTION USUARIOS
     private void estilizarBoton(JButton btn, Color bg, Color fg) {
         btn.setBackground(bg);
         btn.setForeground(fg);
