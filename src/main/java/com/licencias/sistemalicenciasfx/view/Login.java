@@ -48,7 +48,7 @@ public class Login extends JFrame {
         // CONFIGURACIÓN DE VENTANA
         setTitle("EPN - Sistema de Gestión de Licencias");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setExtendedState(JFrame.MAXIMIZED_BOTH); // Pantalla completa
+        setSize(1150,600); // Pantalla completa
 
         aplicarEstilos();
         iniciarEventos();

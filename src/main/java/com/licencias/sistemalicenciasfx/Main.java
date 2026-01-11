@@ -35,7 +35,8 @@ public class Main {
             // Si falla la BD, mostramos aviso pero intentamos abrir la app igual
             JOptionPane.showMessageDialog(null,
                     "No se pudo conectar a la Base de Datos.\nRevisa tu internet o contraseña.",
-                    "Error de Conexión", JOptionPane.ERROR_MESSAGE);
+
+                   "Error de Conexión", JOptionPane.ERROR_MESSAGE);
         }
 
         // ABRIR VENTANA DE LOGIN
