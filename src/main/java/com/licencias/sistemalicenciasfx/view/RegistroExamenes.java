@@ -181,6 +181,8 @@ public class RegistroExamenes extends JFrame {
         btnRegresar.addActionListener(e -> this.dispose());
         cargarSiguientePostulante();
 
+
+
         buscarButton.addActionListener(e -> buscarPostulante());
         textField1.addActionListener(e -> buscarPostulante()); // Enter
 
@@ -276,17 +278,36 @@ public class RegistroExamenes extends JFrame {
             Solicitante s = supabaseService.buscarPostulanteParaExamen(filtro);
 
             SwingUtilities.invokeLater(() -> {
+
                 if (s == null) {
                     JOptionPane.showMessageDialog(this, "No se encontraron postulantes para examen.");
                     limpiarVista();
                     return;
                 }
 
+                // ❌ YA APROBADO
+                if ("APROBADO".equalsIgnoreCase(s.getEstado())) {
+                    JOptionPane.showMessageDialog(this,
+                            "Este postulante ya fue aprobado y no puede volver a rendir exámenes.");
+                    limpiarVista();
+                    return;
+                }
+
+                // ❌ YA TIENE NOTAS / YA RINDIÓ
+                if ("REPROBADO".equalsIgnoreCase(s.getEstado())) {
+                    JOptionPane.showMessageDialog(this,
+                            "Este postulante ya tiene exámenes registrados.");
+                    limpiarVista();
+                    return;
+                }
+
+                // ✅ TODO CORRECTO
                 solicitanteActual = s;
                 mostrarSolicitante(s);
             });
         }).start();
     }
+
 
 
     private void mostrarSolicitante(Solicitante s) {
@@ -319,6 +340,8 @@ public class RegistroExamenes extends JFrame {
 
         pintarPlaceholderFoto();
     }
+
+
 
 
 }
