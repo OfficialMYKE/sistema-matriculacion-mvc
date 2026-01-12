@@ -283,13 +283,51 @@ public class Reportes extends JFrame {
 
         btnVerDetalle.addActionListener(e -> {
             int row = tablaReportes.getSelectedRow();
-            if(row >= 0) {
-                String cedula = (String) modeloTabla.getValueAt(row, 0);
-                JOptionPane.showMessageDialog(this, "Abriendo detalle de: " + cedula);
-            } else {
+            if (row < 0) {
                 JOptionPane.showMessageDialog(this, "Seleccione una fila.");
+                return;
+            }
+
+            String cedula = (String) modeloTabla.getValueAt(row, 0);
+
+            // Buscar solicitante en la lista completa
+            Solicitante s = listaCompleta.stream()
+                    .filter(sol -> sol.getCedula().equals(cedula))
+                    .findFirst().orElse(null);
+
+            if (s == null) {
+                JOptionPane.showMessageDialog(this, "No se encontró el solicitante.");
+                return;
+            }
+
+            // Si tiene licencia emitida, abrir GenerarLicencia
+            if ("LICENCIA_EMITIDA".equalsIgnoreCase(s.getEstado())) {
+                GenerarLicencia ventana = new GenerarLicencia(s.getCedula());
+
+                if (!ventana.isInicializacionExitosa()) {
+                    JOptionPane.showMessageDialog(this,
+                            "No se puede abrir la licencia.\nVerifique los datos del solicitante.",
+                            "Error", JOptionPane.WARNING_MESSAGE);
+                    return;
+                }
+
+                ventana.setVisible(true);
+            } else {
+                // Construir mensaje con datos del solicitante
+                StringBuilder mensaje = new StringBuilder("<html>");
+                mensaje.append("<b>Nombre Completo:</b> ").append(s.getNombreCompleto()).append("<br>");
+                mensaje.append("<b>Cédula:</b> ").append(s.getCedula()).append("<br>");
+                mensaje.append("<b>Tipo de Licencia:</b> ").append(s.getTipoLicencia()).append("<br>");
+                mensaje.append("<b>Estado:</b> ").append(s.getEstado()).append("<br>");
+                mensaje.append("<b>Email:</b> ").append(s.getEmail()).append("<br>");
+                mensaje.append("<b>Licencia:</b> No emitida<br>");
+                mensaje.append("</html>");
+
+                JOptionPane.showMessageDialog(this, mensaje.toString(), "Detalle del Trámite", JOptionPane.INFORMATION_MESSAGE);
             }
         });
+
+
 
         btnExportar.addActionListener(e -> exportarCSV());
     }

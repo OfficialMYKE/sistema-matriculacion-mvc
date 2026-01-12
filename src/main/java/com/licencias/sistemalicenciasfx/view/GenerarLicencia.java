@@ -371,4 +371,9 @@ public class GenerarLicencia extends JFrame {
             }
         });
     }
+
+    // --- MÉTODO DE CONTROL DE INICIALIZACIÓN ---
+    public boolean isInicializacionExitosa() {
+        return inicializacionExitosa;
+    }
 }
