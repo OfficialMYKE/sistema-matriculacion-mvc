@@ -21,7 +21,7 @@ La infraestructura de persistencia de datos reside en la nube mediante **Postgre
 A continuación, se presenta la demostración operativa del sistema, abarcando el ciclo de vida completo del trámite: desde el registro del solicitante y validación de requisitos, hasta la aprobación de exámenes y generación del documento.
 
 ### Video Explicativo del Sistema
-
+https://youtu.be/nMHTb2FO728
 ---
 
 ## 2. Arquitectura de Software
@@ -91,3 +91,4 @@ Este proyecto ha sido desarrollado por:
 >Michael Alexander Carrillo Mendez
 >
 >Kevin Alexander Amagua Valenzuela
+
