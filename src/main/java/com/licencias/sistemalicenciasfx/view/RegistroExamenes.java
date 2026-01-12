@@ -24,6 +24,8 @@ public class RegistroExamenes extends JFrame {
     private JTextField txtNotaPractica;
     private JButton btnGuardar;
     private JButton btnRegresar;
+    private JTextField textField1;
+    private JButton buscarButton;
 
     private final SupabaseService supabaseService;
     private Solicitante solicitanteActual;
@@ -179,6 +181,10 @@ public class RegistroExamenes extends JFrame {
         btnRegresar.addActionListener(e -> this.dispose());
         cargarSiguientePostulante();
 
+        buscarButton.addActionListener(e -> buscarPostulante());
+        textField1.addActionListener(e -> buscarPostulante()); // Enter
+
+
         btnGuardar.addActionListener(e -> {
             if(solicitanteActual == null) return;
 
@@ -252,4 +258,67 @@ public class RegistroExamenes extends JFrame {
             } catch (Exception e) { pintarPlaceholderFoto(); }
         }).start();
     }
+
+    private void buscarPostulante() {
+
+        String filtro = textField1.getText().trim();
+
+        if (filtro.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Ingrese cédula o nombre.");
+            return;
+        }
+
+        btnGuardar.setEnabled(false);
+        lblNombre.setText("Buscando...");
+        lblCedula.setText("");
+
+        new Thread(() -> {
+            Solicitante s = supabaseService.buscarPostulanteParaExamen(filtro);
+
+            SwingUtilities.invokeLater(() -> {
+                if (s == null) {
+                    JOptionPane.showMessageDialog(this, "No se encontraron postulantes para examen.");
+                    limpiarVista();
+                    return;
+                }
+
+                solicitanteActual = s;
+                mostrarSolicitante(s);
+            });
+        }).start();
+    }
+
+
+    private void mostrarSolicitante(Solicitante s) {
+
+        lblNombre.setText(s.getNombreCompleto());
+        lblCedula.setText("CI: " + s.getCedula());
+
+        txtNotaTeorica.setText("");
+        txtNotaPractica.setText("");
+
+        btnGuardar.setText("Guardar Notas");
+        btnGuardar.setEnabled(true);
+
+        cargarImagen(s.getFotoUrl());
+    }
+
+    private void limpiarVista() {
+
+        solicitanteActual = null;
+
+        lblNombre.setText("—");
+        lblCedula.setText("—");
+
+        txtNotaTeorica.setText("");
+        txtNotaPractica.setText("");
+        textField1.setText("");
+
+        btnGuardar.setEnabled(false);
+        btnGuardar.setText("Guardar Notas");
+
+        pintarPlaceholderFoto();
+    }
+
+
 }

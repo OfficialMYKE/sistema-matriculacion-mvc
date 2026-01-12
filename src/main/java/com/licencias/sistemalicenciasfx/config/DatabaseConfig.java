@@ -39,13 +39,7 @@ public class DatabaseConfig {
             e.printStackTrace();
         }
     }
-<<<<<<< HEAD
-=======
-<<<<<<< HEAD
-=======
 
->>>>>>> cf90876ab15e7fa8c810fcb2659d32a84739ddd1
->>>>>>> 43e65f249bfec109faa78961d0d6cd352696a8c8
     // Método para obtener la instancia única (Singleton)
     public static synchronized DatabaseConfig getInstance() {
         if (instancia == null) {
@@ -53,13 +47,7 @@ public class DatabaseConfig {
         }
         return instancia;
     }
-<<<<<<< HEAD
-=======
-<<<<<<< HEAD
-=======
 
->>>>>>> cf90876ab15e7fa8c810fcb2659d32a84739ddd1
->>>>>>> 43e65f249bfec109faa78961d0d6cd352696a8c8
     // Método para conectar a la base de datos
     public Connection obtenerConexion() throws BaseDatosException {
         try {
@@ -72,13 +60,7 @@ public class DatabaseConfig {
             );
         }
     }
-<<<<<<< HEAD
-=======
-<<<<<<< HEAD
-=======
 
->>>>>>> cf90876ab15e7fa8c810fcb2659d32a84739ddd1
->>>>>>> 43e65f249bfec109faa78961d0d6cd352696a8c8
     // Método para cerrar la conexión y liberar recursos
     public void cerrarConexion(Connection conexion) {
         if (conexion != null) {

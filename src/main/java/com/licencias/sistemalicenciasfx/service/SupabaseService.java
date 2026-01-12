@@ -300,4 +300,42 @@ public class SupabaseService {
                 esDonante
         );
     }
+
+    public Solicitante buscarPostulanteParaExamen(String filtro) {
+
+        String sql = """
+        SELECT *
+        FROM solicitantes
+        WHERE
+            estado NOT IN ('LICENCIA_EMITIDA')
+        AND (
+            cedula ILIKE ?
+            OR nombres ILIKE ?
+            OR apellidos ILIKE ?
+        )
+        ORDER BY fecha_registro ASC
+        LIMIT 1
+    """;
+
+        try (Connection conn = DatabaseConfig.getInstance().obtenerConexion();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            String patron = "%" + filtro + "%";
+            pstmt.setString(1, patron);
+            pstmt.setString(2, patron);
+            pstmt.setString(3, patron);
+
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) {
+                    return mapResultSetToSolicitante(rs);
+                }
+            }
+
+        } catch (Exception e) {
+            System.err.println("Error buscarPostulanteParaExamen: " + e.getMessage());
+        }
+
+        return null;
+    }
+
 }
