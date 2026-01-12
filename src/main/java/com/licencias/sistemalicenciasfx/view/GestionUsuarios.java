@@ -355,12 +355,52 @@ public class GestionUsuarios extends JFrame {
     }
 
     private boolean validarCampos() {
-        if(txtCedula.getText().isEmpty() || txtUsername.getText().isEmpty() || new String(txtPassword.getPassword()).isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Complete los campos obligatorios.");
+
+        String cedula = txtCedula.getText().trim();
+        String nombres = txtNombres.getText().trim();
+        String apellidos = txtApellidos.getText().trim();
+        String username = txtUsername.getText().trim();
+        String email = txtEmail.getText().trim();
+        String password = new String(txtPassword.getPassword());
+
+        if (cedula.isEmpty() || nombres.isEmpty() || apellidos.isEmpty()
+                || username.isEmpty() || email.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Todos los campos son obligatorios.");
             return false;
         }
+
+        if (!validarCedulaEcuatoriana(cedula)) {
+            JOptionPane.showMessageDialog(this, "La cédula ingresada no es válida en Ecuador.");
+            return false;
+        }
+
+        if (!validarEmail(email)) {
+            JOptionPane.showMessageDialog(this, "Ingrese un correo electrónico válido.");
+            return false;
+        }
+
+        if (username.length() < 4) {
+            JOptionPane.showMessageDialog(this, "El username debe tener al menos 4 caracteres.");
+            return false;
+        }
+
+        // Contraseña SOLO obligatoria al crear
+        if (btnGuardar.isEnabled() && password.length() < 6) {
+            JOptionPane.showMessageDialog(this, "La contraseña debe tener al menos 6 caracteres.");
+            return false;
+        }
+
         return true;
     }
+
+
+
+    // Validar email
+
+    private boolean validarEmail(String email) {
+        return email.matches("^[\\w.-]+@[\\w.-]+\\.\\w+$");
+    }
+
 
     // --- MÉTODOS DE ESTILO ---
 
@@ -495,4 +535,30 @@ public class GestionUsuarios extends JFrame {
             }
         });
     }
+
+
+    private boolean validarCedulaEcuatoriana(String cedula) {
+
+        if (cedula == null || !cedula.matches("\\d{10}")) return false;
+
+        int provincia = Integer.parseInt(cedula.substring(0, 2));
+        if (provincia < 1 || provincia > 24) return false;
+
+        int tercer = Character.getNumericValue(cedula.charAt(2));
+        if (tercer < 0 || tercer > 5) return false;
+
+        int suma = 0;
+        for (int i = 0; i < 9; i++) {
+            int dig = Character.getNumericValue(cedula.charAt(i));
+            if (i % 2 == 0) {
+                dig *= 2;
+                if (dig > 9) dig -= 9;
+            }
+            suma += dig;
+        }
+
+        int verificador = (10 - (suma % 10)) % 10;
+        return verificador == Character.getNumericValue(cedula.charAt(9));
+    }
+
 }

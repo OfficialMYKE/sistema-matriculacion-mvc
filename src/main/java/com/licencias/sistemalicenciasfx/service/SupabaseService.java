@@ -2,7 +2,7 @@ package com.licencias.sistemalicenciasfx.service;
 
 import com.licencias.sistemalicenciasfx.config.DatabaseConfig;
 import com.licencias.sistemalicenciasfx.model.entities.Solicitante;
-import com.licencias.sistemalicenciasfx.model.entities.Usuario; // Importación de Usuario
+import com.licencias.sistemalicenciasfx.model.entities.Usuario; // <--- IMPORTANTE: Importar la entidad Usuario
 import com.licencias.sistemalicenciasfx.model.exceptions.BaseDatosException;
 
 import java.io.File;
@@ -20,13 +20,10 @@ public class SupabaseService {
 
     // CONFIGURACIÓN SUPABASE
     private static final String PROJECT_URL = "https://sbxndvnhvwdppcgomkda.supabase.co";
-    // Nota: Por seguridad, en producción esta clave no debería estar hardcodeada aquí.
     private static final String SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNieG5kdm5odndkcHBjZ29ta2RhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njc3MTY2MzIsImV4cCI6MjA4MzI5MjYzMn0.W8P3KH6M5oTI-UwoG5xkCjRdefMo8iatxhbfxg9tOOo";
     private static final String BUCKET_NAME = "fotos_solicitantes";
 
-    // ==========================================
     // GESTIÓN SOLICITANTES
-    // ==========================================
 
     public boolean guardarSolicitante(String cedula, String nombres, String apellidos,
                                       String email, String celular, String dir,
@@ -113,40 +110,6 @@ public class SupabaseService {
         return lista;
     }
 
-    public Solicitante buscarPostulanteParaExamen(String filtro) {
-        String sql = """
-            SELECT *
-            FROM solicitantes
-            WHERE
-                estado NOT IN ('LICENCIA_EMITIDA')
-            AND (
-                cedula ILIKE ?
-                OR nombres ILIKE ?
-                OR apellidos ILIKE ?
-            )
-            ORDER BY fecha_registro ASC
-            LIMIT 1
-        """;
-
-        try (Connection conn = DatabaseConfig.getInstance().obtenerConexion();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
-
-            String patron = "%" + filtro + "%";
-            pstmt.setString(1, patron);
-            pstmt.setString(2, patron);
-            pstmt.setString(3, patron);
-
-            try (ResultSet rs = pstmt.executeQuery()) {
-                if (rs.next()) {
-                    return mapResultSetToSolicitante(rs);
-                }
-            }
-        } catch (Exception e) {
-            System.err.println("Error buscarPostulanteParaExamen: " + e.getMessage());
-        }
-        return null;
-    }
-
     public boolean actualizarEstadoSolicitante(String cedula, String nuevoEstado, String observaciones) {
         String sql = "UPDATE solicitantes SET estado = ?, observaciones = ? WHERE cedula = ?";
         try (Connection conn = DatabaseConfig.getInstance().obtenerConexion();
@@ -161,7 +124,6 @@ public class SupabaseService {
     }
 
     public boolean registrarResultadosExamenes(String cedula, double notaTeo, double notaPrac, String estadoFinal) {
-        // Actualizamos las columnas nota_teorica y nota_practica directamente en la tabla solicitantes
         String sql = "UPDATE solicitantes SET nota_teorica = ?, nota_practica = ?, estado = ?, observaciones = ? WHERE cedula = ?";
 
         try (Connection conn = DatabaseConfig.getInstance().obtenerConexion();
@@ -181,10 +143,9 @@ public class SupabaseService {
         }
     }
 
-    // ==========================================
     // GESTIÓN USUARIOS (ADMIN)
-    // ==========================================
 
+    //Guardar Usuario
     public boolean guardarUsuario(String cedula, String nom, String ape, String user, String pass, String rol, String email) {
         String sql = "INSERT INTO usuarios (cedula, nombres, apellidos, username, password, rol, email, estado) VALUES (?, ?, ?, ?, ?, ?, ?, 'ACTIVO')";
         try (Connection conn = DatabaseConfig.getInstance().obtenerConexion();
@@ -203,7 +164,9 @@ public class SupabaseService {
         }
     }
 
+    // Actualizar Usuario
     public boolean actualizarUsuario(String cedula, String nom, String ape, String user, String pass, String rol, String email) {
+        // Solo actualizamos contraseña si el campo no está vacío
         String sql = "UPDATE usuarios SET nombres=?, apellidos=?, username=?, rol=?, email=? " +
                 (pass.isEmpty() ? "" : ", password=?") + " WHERE cedula=?";
 
@@ -229,6 +192,7 @@ public class SupabaseService {
         }
     }
 
+    // Cambiar Estado
     public boolean cambiarEstadoUsuario(String cedula, String nuevoEstado) {
         String sql = "UPDATE usuarios SET estado=? WHERE cedula=?";
         try (Connection conn = DatabaseConfig.getInstance().obtenerConexion();
@@ -241,6 +205,7 @@ public class SupabaseService {
         }
     }
 
+    // Buscar Usuarios
     public List<Usuario> buscarUsuarios(String filtro) {
         List<Usuario> lista = new ArrayList<>();
         String sql = "SELECT * FROM usuarios WHERE cedula ILIKE ? OR nombres ILIKE ? OR apellidos ILIKE ? ORDER BY id ASC";
@@ -261,7 +226,7 @@ public class SupabaseService {
                         rs.getString("nombres"),
                         rs.getString("apellidos"),
                         rs.getString("username"),
-                        rs.getString("password"),
+                        rs.getString("password"), // Ojo: Idealmente no retornar password
                         rs.getString("rol"),
                         rs.getString("estado"),
                         rs.getString("email")
@@ -271,9 +236,7 @@ public class SupabaseService {
         return lista;
     }
 
-    // ==========================================
     // UTILIDADES / HELPERS
-    // ==========================================
 
     public String subirImagen(File archivo, String cedula) {
         if (archivo == null) return null;
@@ -313,8 +276,6 @@ public class SupabaseService {
         return null;
     }
 
-    // --- AQUÍ ESTÁ EL CAMBIO IMPORTANTE ---
-    // Este método convierte la fila de la BD al objeto Java y AHORA incluye las notas.
     private Solicitante mapResultSetToSolicitante(ResultSet rs) throws SQLException {
         Date sqlDate = rs.getDate("fecha_nacimiento");
         LocalDate fechaNac = (sqlDate != null) ? sqlDate.toLocalDate() : LocalDate.of(2000, 1, 1);
@@ -324,8 +285,7 @@ public class SupabaseService {
 
         boolean esDonante = rs.getBoolean("es_donante");
 
-        // 1. Crear el objeto base
-        Solicitante s = new Solicitante(
+        return new Solicitante(
                 rs.getString("cedula"),
                 rs.getString("nombres"),
                 rs.getString("apellidos"),
@@ -339,18 +299,43 @@ public class SupabaseService {
                 tipoSangre,
                 esDonante
         );
+    }
 
-        // 2. RECUPERAR LAS NOTAS DE LA BASE DE DATOS
-        // Si el valor en la BD es NULL, getDouble devuelve 0.0, lo cual es correcto.
-        // Asegúrate de que en tu BD las columnas se llamen 'nota_teorica' y 'nota_practica'
-        try {
-            s.setNotaTeorica(rs.getDouble("nota_teorica"));
-            s.setNotaPractica(rs.getDouble("nota_practica"));
-        } catch (SQLException e) {
-            // Si la columna no existe en la BD, no rompemos el programa, solo avisamos
-            System.err.println("Advertencia: No se pudieron leer las columnas de notas (quizás no existen en la tabla).");
+    public Solicitante buscarPostulanteParaExamen(String filtro) {
+
+        String sql = """
+        SELECT *
+        FROM solicitantes
+        WHERE
+            estado NOT IN ('LICENCIA_EMITIDA')
+        AND (
+            cedula ILIKE ?
+            OR nombres ILIKE ?
+            OR apellidos ILIKE ?
+        )
+        ORDER BY fecha_registro ASC
+        LIMIT 1
+    """;
+
+        try (Connection conn = DatabaseConfig.getInstance().obtenerConexion();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            String patron = "%" + filtro + "%";
+            pstmt.setString(1, patron);
+            pstmt.setString(2, patron);
+            pstmt.setString(3, patron);
+
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) {
+                    return mapResultSetToSolicitante(rs);
+                }
+            }
+
+        } catch (Exception e) {
+            System.err.println("Error buscarPostulanteParaExamen: " + e.getMessage());
         }
 
-        return s;
+        return null;
     }
+
 }

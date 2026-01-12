@@ -285,6 +285,11 @@ public class RegistroSolicitante extends JFrame {
     }
 
     private void guardarDatos() {
+
+        if (!validarFormulario()) {
+            return;
+        }
+
         if(txtCedula.getText().trim().isEmpty() || txtNombres.getText().trim().isEmpty() || txtFechaNacimiento.getText().equals("dd/MM/yyyy")) {
             JOptionPane.showMessageDialog(this, "Complete los campos obligatorios (*).", "Error", JOptionPane.ERROR_MESSAGE);
             return;
@@ -500,4 +505,107 @@ public class RegistroSolicitante extends JFrame {
 
         return image;
     }
+
+
+    // Validar cedula
+    private boolean validarCedulaEcuatoriana(String cedula) {
+
+        if (cedula == null || !cedula.matches("\\d{10}")) {
+            return false;
+        }
+
+        int provincia = Integer.parseInt(cedula.substring(0, 2));
+        if (provincia < 1 || provincia > 24) {
+            return false;
+        }
+
+        int tercerDigito = Character.getNumericValue(cedula.charAt(2));
+        if (tercerDigito < 0 || tercerDigito > 5) {
+            return false;
+        }
+
+        int suma = 0;
+
+        for (int i = 0; i < 9; i++) {
+            int digito = Character.getNumericValue(cedula.charAt(i));
+
+            if (i % 2 == 0) { // posiciones impares (0,2,4,6,8)
+                digito *= 2;
+                if (digito > 9) {
+                    digito -= 9;
+                }
+            }
+
+            suma += digito;
+        }
+
+        int verificadorCalculado = (10 - (suma % 10)) % 10;
+        int verificadorReal = Character.getNumericValue(cedula.charAt(9));
+
+        return verificadorCalculado == verificadorReal;
+    }
+
+
+
+    // Validar datos
+     private boolean validarFormulario() {
+
+         if (!validarCedulaEcuatoriana(txtCedula.getText().trim())) {
+             mostrarError("La cédula ingresada no es válida en Ecuador.");
+             return false;
+         }
+
+
+         if (!txtCedula.getText().matches("\\d{10}")) {
+             mostrarError("La cédula debe tener 10 dígitos.");
+             return false;
+         }
+
+         if (txtNombres.getText().trim().isEmpty()) {
+             mostrarError("Los nombres son obligatorios.");
+             return false;
+         }
+
+         if (txtApellidos.getText().trim().isEmpty()) {
+             mostrarError("Los apellidos son obligatorios.");
+             return false;
+         }
+
+         if (!txtEmail.getText().trim().isEmpty() &&
+                 !txtEmail.getText().matches("^[\\w.-]+@[\\w.-]+\\.[a-zA-Z]{2,}$")) {
+             mostrarError("Correo electrónico inválido.");
+             return false;
+         }
+
+         if (!txtCelular.getText().trim().isEmpty() &&
+                 !txtCelular.getText().matches("\\d{10}")) {
+             mostrarError("El celular debe tener 10 dígitos.");
+             return false;
+         }
+
+         if (txtFechaNacimiento.getText().equals("dd/MM/yyyy")) {
+             mostrarError("Ingrese la fecha de nacimiento.");
+             return false;
+         }
+
+         try {
+             LocalDate fecha = LocalDate.parse(txtFechaNacimiento.getText(), formatter);
+             if (Period.between(fecha, LocalDate.now()).getYears() < 17) {
+                 mostrarError("Edad mínima requerida: 17 años.");
+                 return false;
+             }
+         } catch (DateTimeParseException e) {
+             mostrarError("Formato de fecha inválido (dd/MM/yyyy).");
+             return false;
+         }
+
+         return true;
+     }
+
+    private void mostrarError(String mensaje) {
+        JOptionPane.showMessageDialog(this, mensaje, "Validación", JOptionPane.WARNING_MESSAGE);
+    }
+
+
+
 }
