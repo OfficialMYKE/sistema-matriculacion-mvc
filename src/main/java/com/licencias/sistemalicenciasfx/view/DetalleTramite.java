@@ -13,9 +13,11 @@ import java.awt.*;
 import java.awt.event.*;
 import java.awt.image.BufferedImage;
 import java.net.URL;
+import java.util.Locale;
 
 public class DetalleTramite extends JFrame {
     private JPanel panelPrincipal;
+    // Asegúrate de que en el .form estos componentes tengan ESTOS NOMBRES EXACTOS:
     private JLabel lblFoto, lblNombre, lblCedula, lblEstado;
     private JCheckBox chkCert, chkPago, chkMultas;
     private JTextField txtTeo, txtPrac;
@@ -26,14 +28,16 @@ public class DetalleTramite extends JFrame {
     private boolean inicializacionExitosa = false;
 
     // COLORES
-    private final Color COLOR_ACCENT = new Color(30, 58, 138); // Azul Fuerte
-    private final Color COLOR_SUCCESS = new Color(40, 167, 69); // Verde
-    private final Color COLOR_INPUT_BG = new Color(250, 250, 250); // Casi blanco
-    private final Color COLOR_BORDER = new Color(200, 200, 200); // Gris para bordes
+    private final Color COLOR_ACCENT = new Color(30, 58, 138);
+    private final Color COLOR_SUCCESS = new Color(40, 167, 69);
+    private final Color COLOR_INPUT_BG = new Color(250, 250, 250);
+    private final Color COLOR_BORDER = new Color(200, 200, 200);
 
     public DetalleTramite(String cedula) {
         this.service = new SupabaseService();
         this.cedulaActual = cedula;
+
+        System.out.println("--- ABRIENDO DETALLE INTEGRAL PARA: " + cedula + " ---");
 
         if (!validarUsuarioExiste()) {
             this.inicializacionExitosa = false;
@@ -43,7 +47,7 @@ public class DetalleTramite extends JFrame {
         this.inicializacionExitosa = true;
 
         setContentPane(panelPrincipal);
-        setTitle("Detalle de Trámite - Gestión");
+        setTitle("Detalle Integral del Trámite"); // Título actualizado
         setExtendedState(JFrame.MAXIMIZED_BOTH);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 
@@ -66,13 +70,17 @@ public class DetalleTramite extends JFrame {
                 .anyMatch(s -> s.getCedula().equals(cedulaActual));
 
         if (!existe) {
-            JOptionPane.showMessageDialog(null, "⚠️ No se encontró ningún trámite con la cédula: " + cedulaActual, "Error", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(null, "⚠️ No se encontró trámite para: " + cedulaActual, "Error", JOptionPane.ERROR_MESSAGE);
             return false;
         }
         return true;
     }
 
     private void personalizarUI() {
+        // DIAGNÓSTICO: Verificamos si los componentes gráficos están conectados
+        if (txtTeo == null) System.err.println("ERROR GRAVE: 'txtTeo' es NULL. Revisa el nombre en el .form");
+        if (txtPrac == null) System.err.println("ERROR GRAVE: 'txtPrac' es NULL. Revisa el nombre en el .form");
+
         estilizarInput(txtTeo);
         estilizarInput(txtPrac);
 
@@ -91,13 +99,9 @@ public class DetalleTramite extends JFrame {
             }
         }
 
-        // Estilizamos los botones
         estilizarBoton(btnSaveReq, COLOR_ACCENT, Color.WHITE);
         estilizarBoton(btnSaveEx, COLOR_ACCENT, Color.WHITE);
         estilizarBoton(btnLicencia, COLOR_SUCCESS, Color.WHITE);
-
-        // BOTÓN REGRESAR (Blanco con texto gris)
-        // Ya no ponemos .setBorder aquí, el borde se dibuja en el estilizarBoton
         estilizarBoton(btnRegresar, Color.WHITE, Color.DARK_GRAY);
     }
 
@@ -119,20 +123,16 @@ public class DetalleTramite extends JFrame {
         });
     }
 
-    // --- MÉTODO DE ESTILO CORREGIDO PARA ELIMINAR EL CUADRO ---
     private void estilizarBoton(JButton btn, Color bg, Color fg) {
         if(btn == null) return;
         btn.setBackground(bg);
         btn.setForeground(fg);
         btn.setFont(new Font("Segoe UI", Font.PLAIN, 14));
-
         btn.setFocusPainted(false);
-        // IMPORTANTE: Quitamos el borde por defecto para que no salga el cuadro
         btn.setBorderPainted(false);
         btn.setContentAreaFilled(false);
         btn.setOpaque(false);
         btn.setCursor(new Cursor(Cursor.HAND_CURSOR));
-
         btn.putClientProperty("bgColor", bg);
 
         btn.setUI(new BasicButtonUI() {
@@ -140,29 +140,19 @@ public class DetalleTramite extends JFrame {
             public void paint(Graphics g, JComponent c) {
                 Graphics2D g2 = (Graphics2D) g.create();
                 g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-
-                // 1. Determinar color de fondo (normal o hover)
                 if (c.isEnabled()) {
                     Color colorActual = (Color) c.getClientProperty("bgColor");
                     g2.setColor(colorActual != null ? colorActual : bg);
                 } else {
                     g2.setColor(new Color(200, 200, 200));
                 }
-
-                // 2. Dibujar FONDO REDONDEADO
                 g2.fillRoundRect(0, 0, c.getWidth(), c.getHeight(), 20, 20);
-
-                // 3. LOGICA ESPECIAL PARA BOTÓN REGRESAR (Si es blanco)
-                // En lugar de usar setBorder (que es cuadrado), dibujamos la línea redonda aquí
                 if (bg.equals(Color.WHITE)) {
-                    g2.setColor(COLOR_BORDER); // Color del borde gris
-                    g2.setStroke(new BasicStroke(1)); // Grosor de línea
+                    g2.setColor(COLOR_BORDER);
+                    g2.setStroke(new BasicStroke(1));
                     g2.drawRoundRect(0, 0, c.getWidth() - 1, c.getHeight() - 1, 20, 20);
                 }
-
                 g2.dispose();
-
-                // 4. Dibujar Texto (Sin llamar a super.paint para evitar artefactos cuadrados)
                 paintTextManual(g, c, ((AbstractButton)c).getText());
             }
 
@@ -183,7 +173,7 @@ public class DetalleTramite extends JFrame {
             public void mouseEntered(MouseEvent e) {
                 if (btn.isEnabled()) {
                     if (!bg.equals(Color.WHITE)) btn.putClientProperty("bgColor", bg.darker());
-                    else btn.putClientProperty("bgColor", new Color(240, 240, 240)); // Gris muy suave hover
+                    else btn.putClientProperty("bgColor", new Color(240, 240, 240));
                     btn.repaint();
                 }
             }
@@ -197,33 +187,57 @@ public class DetalleTramite extends JFrame {
     }
 
     private void pintarPlaceholderFoto() {
+        // ... (código imagen igual)
         BufferedImage img = new BufferedImage(300, 400, BufferedImage.TYPE_INT_ARGB);
         Graphics2D g2 = img.createGraphics();
-        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-        g2.setPaint(new GradientPaint(0, 0, new Color(245, 245, 245), 0, 400, new Color(225, 225, 225)));
+        g2.setPaint(new Color(225, 225, 225));
         g2.fillRect(0, 0, 300, 400);
-        g2.setColor(new Color(200, 200, 200));
-        g2.fillOval(100, 100, 100, 100);
-        g2.fillArc(50, 220, 200, 180, 0, 180);
         g2.dispose();
         if(lblFoto != null) lblFoto.setIcon(new ImageIcon(img));
     }
 
+    // ==========================================
+    // CARGA DE DATOS (AQUÍ ESTÁ LA CLAVE)
+    // ==========================================
     private void cargarDatos() {
         new Thread(() -> {
             Solicitante s = service.obtenerTodosLosTramites().stream()
                     .filter(post -> post.getCedula().equals(cedulaActual))
                     .findFirst().orElse(null);
+
             SwingUtilities.invokeLater(() -> {
                 if (s != null) {
+                    System.out.println("DEBUG: Datos encontrados para " + s.getCedula());
+                    System.out.println("DEBUG: Nota T: " + s.getNotaTeorica() + " | Nota P: " + s.getNotaPractica());
+
                     if(lblNombre != null) lblNombre.setText(s.getNombreCompleto());
                     if(lblCedula != null) lblCedula.setText("CI: " + s.getCedula());
                     if(lblEstado != null) lblEstado.setText("ESTADO: " + s.getEstado().toUpperCase());
 
-                    boolean habilitar = s.getEstado().equals("APROBADO") || s.getEstado().equals("LICENCIA_EMITIDA");
-                    if(btnLicencia != null) btnLicencia.setEnabled(habilitar);
+                    // SETEAMOS LOS TEXTOS DE LAS NOTAS CON FORMATO 0.00
+                    if(txtTeo != null) {
+                        txtTeo.setText(String.format(Locale.US, "%.2f", s.getNotaTeorica()));
+                        System.out.println("DEBUG: Seteando txtTeo con: " + txtTeo.getText());
+                    }
+
+                    if(txtPrac != null) {
+                        txtPrac.setText(String.format(Locale.US, "%.2f", s.getNotaPractica()));
+                        System.out.println("DEBUG: Seteando txtPrac con: " + txtPrac.getText());
+                    }
+
+                    // Checkboxes
+                    if (!s.getEstado().equalsIgnoreCase("PENDIENTE") && !s.getEstado().equalsIgnoreCase("RECHAZADO")) {
+                        if(chkCert != null) chkCert.setSelected(true);
+                        if(chkPago != null) chkPago.setSelected(true);
+                        if(chkMultas != null) chkMultas.setSelected(true);
+                    }
+
+                    boolean habilitarLicencia = s.getEstado().equals("APROBADO") || s.getEstado().equals("LICENCIA_EMITIDA");
+                    if(btnLicencia != null) btnLicencia.setEnabled(habilitarLicencia);
 
                     cargarImagen(s.getFotoUrl());
+                } else {
+                    System.err.println("DEBUG: No se encontró el solicitante en la lista.");
                 }
             });
         }).start();
@@ -253,13 +267,26 @@ public class DetalleTramite extends JFrame {
 
         if(btnSaveEx != null) btnSaveEx.addActionListener(e -> {
             try {
-                double t = Double.parseDouble(txtTeo.getText());
-                double p = Double.parseDouble(txtPrac.getText());
+                // CORRECCIÓN: Aceptar comas y puntos
+                String valT = txtTeo.getText().replace(",", ".");
+                String valP = txtPrac.getText().replace(",", ".");
+
+                double t = Double.parseDouble(valT);
+                double p = Double.parseDouble(valP);
+
+                if (t < 0 || t > 20 || p < 0 || p > 20) {
+                    JOptionPane.showMessageDialog(this, "Las notas deben estar entre 0 y 20.");
+                    return;
+                }
+
                 String res = (t >= 14 && p >= 14) ? "APROBADO" : "REPROBADO";
                 service.registrarResultadosExamenes(cedulaActual, t, p, res);
                 JOptionPane.showMessageDialog(this, "Notas Registradas. Estado Final: " + res);
                 cargarDatos();
-            } catch (Exception ex) { JOptionPane.showMessageDialog(this, "Ingrese valores numéricos válidos (0-20)."); }
+
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(this, "Ingrese valores numéricos válidos (use punto o coma).");
+            }
         });
 
         if(btnLicencia != null) btnLicencia.addActionListener(e -> {

@@ -13,16 +13,16 @@ public class Solicitante {
     private LocalDate fechaNacimiento;
     private String fotoUrl;
     private String estado;
-
-    // --- NUEVOS CAMPOS ---
     private String tipoSangre;
     private boolean esDonante;
+    private double notaTeorica;
+    private double notaPractica;
 
-    // CONSTRUCTOR ACTUALIZADO
+    // CONSTRUCTOR 
     public Solicitante(String cedula, String nombres, String apellidos, String email,
                        String celular, String direccion, String tipoLicencia,
                        LocalDate fechaNacimiento, String fotoUrl, String estado,
-                       String tipoSangre, boolean esDonante) { // <--- Nuevos parámetros
+                       String tipoSangre, boolean esDonante) {
         this.cedula = cedula;
         this.nombres = nombres;
         this.apellidos = apellidos;
@@ -37,7 +37,7 @@ public class Solicitante {
         this.esDonante = esDonante;
     }
 
-    // Getters existentes
+    // GETTERS Y SETTERS
     public String getCedula() { return cedula; }
     public String getNombres() { return nombres; }
     public String getApellidos() { return apellidos; }
@@ -48,11 +48,26 @@ public class Solicitante {
     public LocalDate getFechaNacimiento() { return fechaNacimiento; }
     public String getFotoUrl() { return fotoUrl; }
     public String getEstado() { return estado; }
-
-    // --- NUEVOS GETTERS ---
     public String getTipoSangre() { return tipoSangre; }
     public boolean isEsDonante() { return esDonante; }
 
-    // Helper para nombre
+    // --- NUEVOS GETTERS Y SETTERS (ESTO ES LO QUE FALTABA) ---
+    public double getNotaTeorica() {
+        return notaTeorica;
+    }
+
+    public void setNotaTeorica(double notaTeorica) {
+        this.notaTeorica = notaTeorica;
+    }
+
+    public double getNotaPractica() {
+        return notaPractica;
+    }
+
+    public void setNotaPractica(double notaPractica) {
+        this.notaPractica = notaPractica;
+    }
+
+    // Helper
     public String getNombreCompleto() { return nombres + " " + apellidos; }
 }
