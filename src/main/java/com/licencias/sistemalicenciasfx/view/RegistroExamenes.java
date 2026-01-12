@@ -24,7 +24,7 @@ public class RegistroExamenes extends JFrame {
     private JTextField txtNotaPractica;
     private JButton btnGuardar;
     private JButton btnRegresar;
-    private JTextField textField1;
+    private JTextField textField1; // Campo de búsqueda
     private JButton buscarButton;
 
     private final SupabaseService supabaseService;
@@ -51,23 +51,26 @@ public class RegistroExamenes extends JFrame {
         // INPUTS ESTILO REGISTRO
         estilizarInput(txtNotaTeorica);
         estilizarInput(txtNotaPractica);
+        estilizarInput(textField1); // Estilo también para la búsqueda
 
         // FOTO
-        lblFoto.setOpaque(true);
-        lblFoto.setBorder(new LineBorder(COLOR_BORDER_INPUT, 1));
-        pintarPlaceholderFoto();
+        if (lblFoto != null) {
+            lblFoto.setOpaque(true);
+            lblFoto.setBorder(new LineBorder(COLOR_BORDER_INPUT, 1));
+            pintarPlaceholderFoto();
+        }
 
         // --- BOTONES ---
-
-        // 1. Botón Guardar (Azul, Texto Blanco)
         estilizarBoton(btnGuardar, COLOR_ACCENT, Color.WHITE);
 
-        // 2. Botón Regresar (Blanco, Texto Gris Oscuro, Borde Gris) - IGUAL QUE GESTIÓN USUARIOS
         estilizarBoton(btnRegresar, Color.WHITE, Color.DARK_GRAY);
-        btnRegresar.setBorder(new LineBorder(COLOR_BORDER_INPUT, 1));
+        if(btnRegresar != null) btnRegresar.setBorder(new LineBorder(COLOR_BORDER_INPUT, 1));
+
+        estilizarBoton(buscarButton, COLOR_BG_INPUT, Color.BLACK);
     }
 
     private void estilizarInput(JTextField campo) {
+        if (campo == null) return;
         campo.setOpaque(true);
         campo.setBackground(COLOR_BG_INPUT);
         campo.setFont(new Font("Segoe UI", Font.PLAIN, 14));
@@ -87,18 +90,18 @@ public class RegistroExamenes extends JFrame {
         });
     }
 
-    // --- MÉTODO DE ESTILO DE BOTÓN ROBUSTO (Evita duplicidad de texto) ---
+    // --- MÉTODO DE ESTILO DE BOTÓN ROBUSTO ---
     private void estilizarBoton(JButton btn, Color bg, Color fg) {
+        if(btn == null) return;
         btn.setBackground(bg);
         btn.setForeground(fg);
-        btn.setFont(new Font("Segoe UI", Font.PLAIN, 14)); // Regular
+        btn.setFont(new Font("Segoe UI", Font.PLAIN, 14));
         btn.setFocusPainted(false);
         btn.setBorderPainted(false);
         btn.setContentAreaFilled(false);
         btn.setOpaque(false);
         btn.setCursor(new Cursor(Cursor.HAND_CURSOR));
 
-        // Guardamos propiedad para hover
         btn.putClientProperty("bgColor", bg);
 
         btn.setUI(new BasicButtonUI() {
@@ -107,7 +110,6 @@ public class RegistroExamenes extends JFrame {
                 Graphics2D g2 = (Graphics2D) g.create();
                 g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
-                // Dibujar Fondo
                 if (c.isEnabled()) {
                     Color colorActual = (Color) c.getClientProperty("bgColor");
                     g2.setColor(colorActual != null ? colorActual : bg);
@@ -115,38 +117,34 @@ public class RegistroExamenes extends JFrame {
                     g2.setColor(new Color(200, 200, 200));
                 }
                 g2.fillRoundRect(0, 0, c.getWidth(), c.getHeight(), 20, 20);
-                g2.dispose();
 
-                // DIBUJAR TEXTO MANUALMENTE (Para control total del color y nitidez)
+                // Borde suave si es blanco
+                if (bg.equals(Color.WHITE)) {
+                    g2.setColor(COLOR_BORDER_INPUT);
+                    g2.setStroke(new BasicStroke(1));
+                    g2.drawRoundRect(0, 0, c.getWidth()-1, c.getHeight()-1, 20, 20);
+                }
+
+                g2.dispose();
                 paintTextManual(g, c, ((AbstractButton)c).getText());
             }
 
             private void paintTextManual(Graphics g, JComponent c, String text) {
                 Graphics2D g2 = (Graphics2D) g.create();
                 g2.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
-
-                // Usamos el color configurado en el componente (fg)
                 g2.setColor(c.getForeground());
-
                 g2.setFont(c.getFont());
                 FontMetrics fm = g2.getFontMetrics();
-                int textWidth = fm.stringWidth(text);
-                int textHeight = fm.getAscent();
-
-                // Centrar texto
-                int x = (c.getWidth() - textWidth) / 2;
-                int y = (c.getHeight() + textHeight) / 2 - 2;
-
+                int x = (c.getWidth() - fm.stringWidth(text)) / 2;
+                int y = (c.getHeight() + fm.getAscent()) / 2 - 2;
                 g2.drawString(text, x, y);
                 g2.dispose();
             }
         });
 
-        // Hover Effect
         btn.addMouseListener(new MouseAdapter() {
             public void mouseEntered(MouseEvent e) {
                 if(btn.isEnabled()) {
-                    // Si es blanco, oscurecemos a gris claro, si es color, oscurecemos el color
                     if (!bg.equals(Color.WHITE)) {
                         btn.putClientProperty("bgColor", bg.darker());
                     } else {
@@ -165,6 +163,7 @@ public class RegistroExamenes extends JFrame {
     }
 
     private void pintarPlaceholderFoto() {
+        if(lblFoto == null) return;
         BufferedImage img = new BufferedImage(300, 400, BufferedImage.TYPE_INT_ARGB);
         Graphics2D g2 = img.createGraphics();
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
@@ -178,49 +177,65 @@ public class RegistroExamenes extends JFrame {
     }
 
     private void iniciarLogica() {
-        btnRegresar.addActionListener(e -> this.dispose());
+        if(btnRegresar != null) btnRegresar.addActionListener(e -> this.dispose());
+
+        // Cargar inicial
         cargarSiguientePostulante();
 
-        buscarButton.addActionListener(e -> buscarPostulante());
-        textField1.addActionListener(e -> buscarPostulante()); // Enter
+        // Búsqueda
+        if(buscarButton != null) buscarButton.addActionListener(e -> buscarPostulante());
+        if(textField1 != null) textField1.addActionListener(e -> buscarPostulante()); // Enter
 
-
-        btnGuardar.addActionListener(e -> {
+        // LÓGICA DE GUARDADO MEJORADA
+        if(btnGuardar != null) btnGuardar.addActionListener(e -> {
             if(solicitanteActual == null) return;
 
             try {
-                double teo = Double.parseDouble(txtNotaTeorica.getText());
-                double prac = Double.parseDouble(txtNotaPractica.getText());
+                // LIMPIEZA: Reemplazar coma por punto para evitar error
+                String valTeo = txtNotaTeorica.getText().replace(",", ".");
+                String valPrac = txtNotaPractica.getText().replace(",", ".");
 
+                // CONVERSIÓN
+                double teo = Double.parseDouble(valTeo);
+                double prac = Double.parseDouble(valPrac);
+
+                // VALIDACIÓN DE RANGO
                 if (teo < 0 || teo > 20 || prac < 0 || prac > 20) {
                     JOptionPane.showMessageDialog(this, "Las notas deben estar entre 0 y 20.");
                     return;
                 }
 
+                // LÓGICA DE NEGOCIO
                 String nuevoEstado = (teo >= 14 && prac >= 14) ? "APROBADO" : "REPROBADO";
-                String obs = "Nota Teoría: " + teo + " | Nota Práctica: " + prac;
 
-                // Bloquear botón mientras guarda
+                // INTERFAZ DE ESPERA
                 btnGuardar.setEnabled(false);
                 btnGuardar.setText("Guardando...");
 
                 new Thread(() -> {
-                    if(supabaseService.actualizarEstadoSolicitante(solicitanteActual.getCedula(), nuevoEstado, obs)) {
-                        SwingUtilities.invokeLater(() -> {
-                            JOptionPane.showMessageDialog(this, "Resultados guardados. Estado: " + nuevoEstado);
-                            cargarSiguientePostulante();
-                        });
-                    } else {
-                        SwingUtilities.invokeLater(() -> {
-                            JOptionPane.showMessageDialog(this, "Error al guardar notas.");
+                    // LLAMADA AL SERVICIO CORRECTO (Que actualiza columnas numéricas)
+                    // Usamos registrarResultadosExamenes en lugar de actualizarEstadoSolicitante
+                    boolean exito = supabaseService.registrarResultadosExamenes(
+                            solicitanteActual.getCedula(),
+                            teo,
+                            prac,
+                            nuevoEstado
+                    );
+
+                    SwingUtilities.invokeLater(() -> {
+                        if(exito) {
+                            JOptionPane.showMessageDialog(this, "Resultados guardados correctamente.\nEstado final: " + nuevoEstado);
+                            cargarSiguientePostulante(); // Limpia y carga el siguiente
+                        } else {
+                            JOptionPane.showMessageDialog(this, "Error al guardar en base de datos.");
                             btnGuardar.setEnabled(true);
                             btnGuardar.setText("Guardar Notas");
-                        });
-                    }
+                        }
+                    });
                 }).start();
 
             } catch (NumberFormatException ex) {
-                JOptionPane.showMessageDialog(this, "Ingrese valores numéricos válidos para las notas.");
+                JOptionPane.showMessageDialog(this, "Ingrese valores numéricos válidos (use punto o coma).");
             }
         });
     }
@@ -229,38 +244,41 @@ public class RegistroExamenes extends JFrame {
         new Thread(() -> {
             this.solicitanteActual = supabaseService.obtenerSiguienteParaExamen();
             SwingUtilities.invokeLater(() -> {
-                btnGuardar.setText("Guardar Notas");
+                if(btnGuardar != null) btnGuardar.setText("Guardar Notas");
+
                 if (solicitanteActual != null) {
-                    lblNombre.setText(solicitanteActual.getNombreCompleto());
-                    lblCedula.setText("CI: " + solicitanteActual.getCedula());
+                    if(lblNombre != null) lblNombre.setText(solicitanteActual.getNombreCompleto());
+                    if(lblCedula != null) lblCedula.setText("CI: " + solicitanteActual.getCedula());
                     cargarImagen(solicitanteActual.getFotoUrl());
-                    btnGuardar.setEnabled(true);
+                    if(btnGuardar != null) btnGuardar.setEnabled(true);
                 } else {
-                    lblNombre.setText("No hay postulantes para examen");
-                    lblCedula.setText("---");
+                    if(lblNombre != null) lblNombre.setText("No hay postulantes pendientes");
+                    if(lblCedula != null) lblCedula.setText("---");
                     pintarPlaceholderFoto();
-                    btnGuardar.setEnabled(false);
+                    if(btnGuardar != null) btnGuardar.setEnabled(false);
                 }
-                txtNotaTeorica.setText(""); txtNotaPractica.setText("");
+
+                if(txtNotaTeorica != null) txtNotaTeorica.setText("");
+                if(txtNotaPractica != null) txtNotaPractica.setText("");
             });
         }).start();
     }
 
     private void cargarImagen(String u) {
-        if(u == null) { pintarPlaceholderFoto(); return; }
+        if(u == null || u.isEmpty()) { pintarPlaceholderFoto(); return; }
         new Thread(() -> {
             try {
                 BufferedImage i = ImageIO.read(new URL(u));
                 if(i != null) {
                     Image d = i.getScaledInstance(300, 400, Image.SCALE_SMOOTH);
-                    SwingUtilities.invokeLater(() -> lblFoto.setIcon(new ImageIcon(d)));
+                    SwingUtilities.invokeLater(() -> { if(lblFoto != null) lblFoto.setIcon(new ImageIcon(d)); });
                 }
             } catch (Exception e) { pintarPlaceholderFoto(); }
         }).start();
     }
 
     private void buscarPostulante() {
-
+        if(textField1 == null) return;
         String filtro = textField1.getText().trim();
 
         if (filtro.isEmpty()) {
@@ -268,9 +286,9 @@ public class RegistroExamenes extends JFrame {
             return;
         }
 
-        btnGuardar.setEnabled(false);
-        lblNombre.setText("Buscando...");
-        lblCedula.setText("");
+        if(btnGuardar != null) btnGuardar.setEnabled(false);
+        if(lblNombre != null) lblNombre.setText("Buscando...");
+        if(lblCedula != null) lblCedula.setText("");
 
         new Thread(() -> {
             Solicitante s = supabaseService.buscarPostulanteParaExamen(filtro);
@@ -290,35 +308,35 @@ public class RegistroExamenes extends JFrame {
 
 
     private void mostrarSolicitante(Solicitante s) {
+        if(lblNombre != null) lblNombre.setText(s.getNombreCompleto());
+        if(lblCedula != null) lblCedula.setText("CI: " + s.getCedula());
 
-        lblNombre.setText(s.getNombreCompleto());
-        lblCedula.setText("CI: " + s.getCedula());
+        if(txtNotaTeorica != null) txtNotaTeorica.setText("");
+        if(txtNotaPractica != null) txtNotaPractica.setText("");
 
-        txtNotaTeorica.setText("");
-        txtNotaPractica.setText("");
-
-        btnGuardar.setText("Guardar Notas");
-        btnGuardar.setEnabled(true);
+        if(btnGuardar != null) {
+            btnGuardar.setText("Guardar Notas");
+            btnGuardar.setEnabled(true);
+        }
 
         cargarImagen(s.getFotoUrl());
     }
 
     private void limpiarVista() {
-
         solicitanteActual = null;
 
-        lblNombre.setText("—");
-        lblCedula.setText("—");
+        if(lblNombre != null) lblNombre.setText("—");
+        if(lblCedula != null) lblCedula.setText("—");
 
-        txtNotaTeorica.setText("");
-        txtNotaPractica.setText("");
-        textField1.setText("");
+        if(txtNotaTeorica != null) txtNotaTeorica.setText("");
+        if(txtNotaPractica != null) txtNotaPractica.setText("");
+        if(textField1 != null) textField1.setText("");
 
-        btnGuardar.setEnabled(false);
-        btnGuardar.setText("Guardar Notas");
+        if(btnGuardar != null) {
+            btnGuardar.setEnabled(false);
+            btnGuardar.setText("Guardar Notas");
+        }
 
         pintarPlaceholderFoto();
     }
-
-
 }

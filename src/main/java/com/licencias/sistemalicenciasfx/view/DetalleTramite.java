@@ -196,9 +196,7 @@ public class DetalleTramite extends JFrame {
         if(lblFoto != null) lblFoto.setIcon(new ImageIcon(img));
     }
 
-    // ==========================================
     // CARGA DE DATOS (AQUÍ ESTÁ LA CLAVE)
-    // ==========================================
     private void cargarDatos() {
         new Thread(() -> {
             Solicitante s = service.obtenerTodosLosTramites().stream()
